@@ -1,30 +1,610 @@
-### IntelliJ IDEA ###
-out/
-!**/src/main/**/out/
-!**/src/test/**/out/
-.kotlin
+# ============================================================
+# MONOREPO: React + Vite + TypeScript + Tailwind CSS
+#           Spring Boot + Java + Maven
+# ============================================================
+# Root repository structure assumed:
+#
+#   /
+#   ├── frontend/
+#   ├── backend/
+#   ├── .gitignore
+#   └── ...
+#
+# This file intentionally covers common IDEs, build tools,
+# operating systems, caches, logs, secrets and generated files.
+# ============================================================
 
-### Eclipse ###
-.apt_generated
-.classpath
-.factorypath
-.project
-.settings
-.springBeans
-.sts4-cache
+
+# ============================================================
+# OPERATING SYSTEM / FILE SYSTEM JUNK
+# ============================================================
+
+# macOS
+.DS_Store
+.DS_Store?
+.AppleDouble
+.LSOverride
+._*
+.Spotlight-V100
+.Trashes
+.DocumentRevisions-V100
+.fseventsd
+.TemporaryItems
+.apdisk
+
+# Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+Desktop.ini
+$RECYCLE.BIN/
+*.stackdump
+
+# Windows installer / shell leftovers
+*.lnk
+
+# Linux / desktop environments
+.directory
+.Trash-*
+.nfs*
+
+# Generic editor backup / temporary files
+*~
+*.bak
+*.backup
+*.tmp
+*.temp
+*.swp
+*.swo
+*.orig
+*.rej
+*.crdownload
+*.part
+
+
+# ============================================================
+# ENVIRONMENT VARIABLES / SECRETS
+# ============================================================
+
+# General environment files
+.env
+.env.*
+!.env.example
+!.env.template
+!.env.sample
+
+# Frontend environment files
+frontend/.env
+frontend/.env.*
+!frontend/.env.example
+!frontend/.env.template
+!frontend/.env.sample
+
+# Backend local environment files
+backend/.env
+backend/.env.*
+!backend/.env.example
+!backend/.env.template
+!backend/.env.sample
+
+# Common secret / credential files
+*.pem
+*.key
+*.p12
+*.pfx
+*.jks
+*.keystore
+*.crt
+*.cer
+
+# NOTE:
+# Do NOT put real passwords, API keys, database credentials or
+# private certificates in files that are committed to Git.
+
+
+# ============================================================
+# NODE.JS / NPM / FRONTEND
+# ============================================================
+
+# Dependencies
+node_modules/
+
+# npm logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# npm caches
+.npm/
+.npmrc.local
+
+# Package-manager caches
+.yarn/cache/
+.yarn/unplugged/
+.yarn/install-state.gz
+.pnpm-store/
+
+# Build output
+dist/
+build/
+
+# Vite
+.vite/
+
+# TypeScript
+*.tsbuildinfo
+
+# TypeScript incremental build info
+**/*.tsbuildinfo
+
+# Coverage
+coverage/
+.nyc_output/
+
+# Test / tooling caches
+.eslintcache
+.stylelintcache
+.cache/
+.parcel-cache/
+.rpt2_cache/
+.turbo/
+
+# Storybook
+storybook-static/
+
+# Common frontend framework caches
+.next/
+.nuxt/
+.svelte-kit/
+.angular/
+.angular/cache/
+
+# Astro
+.astro/
+
+# Vercel / Netlify local metadata
+.vercel/
+.netlify/
+
+# React Native / Expo (if ever used)
+.expo/
+.expo-shared/
+
+# Generated source maps / reports
+*.map
+
+
+# ============================================================
+# BUN / DENO / OTHER JS TOOLING
+# ============================================================
+
+# Bun
+.bun/
+
+# Deno
+.deno/
+deno.lock
+
+# Local package manager state
+.node-version.local
+.nvmrc.local
+
+
+# ============================================================
+# JAVA / JVM
+# ============================================================
+
+# Compiled Java bytecode
+*.class
+
+# JVM crash logs
+hs_err_pid*
+replay_pid*
+
+# Java temporary files
+*.java~
+
+
+# ============================================================
+# MAVEN / SPRING BOOT
+# ============================================================
+
+# Maven build output
+target/
+**/target/
+
+# Maven generated status files
+**/target/maven-status/
+**/target/generated-sources/
+**/target/generated-test-sources/
+
+# Maven reports
+**/target/surefire-reports/
+**/target/failsafe-reports/
+
+# Maven site
+**/target/site/
+
+# Maven release backup
+release.properties
+
+# Maven wrapper:
+# KEEP mvnw, mvnw.cmd and .mvn/wrapper/ committed.
+# They make the project reproducible across machines.
+
+# Spring Boot generated / local files
+*.log
+spring.log
+
+# Spring Boot local configuration variants
+application-local.properties
+application-local.yml
+application-local.yaml
+application-dev-local.properties
+application-dev-local.yml
+application-dev-local.yaml
+application-prod-local.properties
+application-prod-local.yml
+application-prod-local.yaml
+
+
+# ============================================================
+# GRADLE (IN CASE THE BACKEND OR ANOTHER MODULE EVER USES IT)
+# ============================================================
+
+.gradle/
+**/.gradle/
+gradle-app.setting
+!gradle-wrapper.jar
+build/
+**/build/
+
+# Gradle generated files
 bin/
-!**/src/main/**/bin/
-!**/src/test/**/bin/
 
-### NetBeans ###
-/nbproject/private/
-/nbbuild/
-/dist/
-/nbdist/
-/.nb-gradle/
 
-### VS Code ###
+# ============================================================
+# NETBEANS
+# ============================================================
+
+# NetBeans private project data
+**/nbproject/private/
+
+# NetBeans build output
+**/nbbuild/
+**/nbdist/
+
+# NetBeans local caches / generated files
+**/.nb-gradle/
+**/nbactions-private.xml
+
+# NetBeans user-specific files
+**/nbproject/private/
+
+# NetBeans cache directory
+.nb-gradle/
+
+# NOTE:
+# For Maven projects, do NOT blindly ignore the whole nbproject/
+# directory if you intentionally use a NetBeans Ant project.
+# Maven projects normally do not need generated nbproject metadata.
+
+
+# ============================================================
+# ECLIPSE
+# ============================================================
+
+# Eclipse project metadata
+.classpath
+.project
+.settings/
+
+# Eclipse local metadata
+.factorypath
+.loadpath
+
+# Eclipse JDT generated files
+bin/
+
+# Eclipse / Maven metadata
+# Do NOT ignore .mvn/: it may contain Maven Wrapper/configuration.
+
+
+# ============================================================
+# INTELLIJ IDEA / JETBRAINS
+# ============================================================
+
+.idea/
+*.iws
+*.iml
+*.ipr
+
+# IntelliJ local workspace
+**/.idea/workspace.xml
+**/.idea/tasks.xml
+**/.idea/usage.statistics.xml
+**/.idea/dictionaries/
+
+# IntelliJ generated build output
+out/
+
+
+# ============================================================
+# VISUAL STUDIO CODE
+# ============================================================
+
 .vscode/
 
-### Mac OS ###
-.DS_Store
+# If the team later wants to share selected VS Code settings,
+# remove the line above and use targeted ignores instead.
+
+
+# ============================================================
+# OTHER IDEs / EDITORS
+# ============================================================
+
+# Sublime Text
+*.sublime-workspace
+*.sublime-project
+
+# Vim
+[._]*.s[a-v][a-z]
+[._]*.sw[a-p]
+[._]s[a-rt-v][a-z]
+[._]ss[a-gi][a-z]
+*.un~
+Session.vim
+.netrwhist
+
+# Emacs
+*~
+\#*\#
+/.#*
+*.elc
+auto-save-list
+tramp
+.\\#*
+
+# Eclipse / Spring Tool Suite / Spring Tools
+.sts4-cache/
+.springBeans
+
+
+# ============================================================
+# TESTING / REPORTING
+# ============================================================
+
+# Generic test reports
+test-results/
+test-results/**
+reports/
+reports/**
+
+# Jest
+jest-stare/
+
+# Playwright
+playwright-report/
+blob-report/
+playwright/.cache/
+
+# Cypress
+cypress/screenshots/
+cypress/videos/
+cypress/downloads/
+
+
+# ============================================================
+# DATABASE / LOCAL DEVELOPMENT
+# ============================================================
+
+# Local database files
+*.db
+*.sqlite
+*.sqlite3
+
+# H2
+*.mv.db
+*.trace.db
+
+# Local database dumps
+*.dump
+*.sql.gz
+
+# NOTE:
+# Do not ignore SQL migration/source files such as:
+# src/main/resources/db/migration/*.sql
+# unless they are generated backups.
+
+
+# ============================================================
+# DOCKER / CONTAINERS
+# ============================================================
+
+# Local Docker override files
+docker-compose.override.yml
+docker-compose.override.yaml
+
+# Docker local environment
+.docker/
+
+# Do NOT ignore Dockerfile or docker-compose.yml files.
+
+
+# ============================================================
+# GENERATED DOCUMENTATION / SITE OUTPUT
+# ============================================================
+
+# Common generated documentation
+javadoc/
+apidocs/
+site/
+
+# MkDocs / static site output
+public-generated/
+
+
+# ============================================================
+# LOGS / DEBUG OUTPUT
+# ============================================================
+
+*.log
+logs/
+log/
+**/logs/
+**/log/
+
+# Debug dumps
+*.dump
+*.hprof
+
+
+# ============================================================
+# ARCHIVES / TEMPORARY EXPORTS
+# ============================================================
+
+# Temporary archives generated locally
+*.zip
+*.tar
+*.tar.gz
+*.tgz
+*.7z
+*.rar
+
+# NOTE:
+# Remove these rules if your project intentionally version-controls
+# release packages or other binary artifacts.
+
+
+# ============================================================
+# GENERATED BINARIES
+# ============================================================
+
+# Java / native build artifacts
+*.class
+*.war
+*.ear
+
+# Native binaries accidentally produced locally
+*.dll
+*.so
+*.dylib
+
+
+# ============================================================
+# CODE COVERAGE / PROFILING
+# ============================================================
+
+*.exec
+*.gcda
+*.gcno
+*.profraw
+*.profdata
+
+
+# ============================================================
+# LOCAL DEVELOPMENT CONFIGURATION
+# ============================================================
+
+# Local machine-specific configuration
+*.local
+*.local.*
+
+# Local configuration directories
+.local/
+local/
+
+# Keep examples/templates versioned
+!.local.example
+!.local.template
+
+
+# ============================================================
+# CLOUD / DEPLOYMENT LOCAL STATE
+# ============================================================
+
+# Terraform
+.terraform/
+*.tfstate
+*.tfstate.*
+crash.log
+crash.*.log
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+
+# Serverless Framework
+.serverless/
+
+# SST
+.sst/
+
+# Pulumi
+.pulumi/
+
+
+# ============================================================
+# AI / TOOLING LOCAL STATE
+# ============================================================
+
+# Common local AI/editor state
+.claude/
+.cursor/
+.windsurf/
+
+# Uncomment only if these tools create local project state
+# that your team does not want to version.
+
+
+# ============================================================
+# SECURITY SCANNING / LOCAL REPORTS
+# ============================================================
+
+*.sarif
+security-reports/
+security-report/
+dependency-reports/
+
+
+# ============================================================
+# GENERATED LOCK / STATE FILES THAT SHOULD NOT BE SHARED
+# ============================================================
+
+# Local npm/node state
+.npmrc.local
+
+# OS / editor local state
+*.pid
+*.pid.lock
+
+
+# ============================================================
+# PROJECT-SPECIFIC GENERATED DIRECTORIES
+# ============================================================
+
+# Generic generated directories
+generated/
+generated-sources/
+generated-test-sources/
+
+# IMPORTANT:
+# If your source code intentionally lives inside a directory named
+# "generated", remove these rules.
+
+
+# ============================================================
+# OPTIONAL: LOCAL BACKUPS
+# ============================================================
+
+backup/
+backups/
+*.backup
+*.old
+
+
+# ============================================================
+# END
+# ============================================================
