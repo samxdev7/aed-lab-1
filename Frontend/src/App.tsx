@@ -1,21 +1,23 @@
 import { useState } from 'react';
 import { PresentationPanel } from './PresentationPanel';
+import { ArrayMenuPanel } from './ArrayMenuPanel';
 
-export function App() {
-  const [currentPanel, setCurrentPanel] = useState<'presentation' | 'second'>('presentation');
+export default function App() {
+  const [currentScreen, setCurrentScreen] = useState<'presentation' | 'menu' | 'ordered' | 'unordered'>('presentation');
 
   return (
-    <div className="w-full min-h-screen bg-slate-900">
-      {currentPanel === 'presentation' && (
-        <PresentationPanel onNext={() => setCurrentPanel('second')} />
+    <main className="w-full min-h-screen">
+      {currentScreen === 'presentation' && (
+        <PresentationPanel onNext={() => setCurrentScreen('menu')} />
       )}
-      {currentPanel === 'second' && (
-        <div className="p-8 text-white min-h-screen flex items-center justify-center">
-          <h1 className="text-2xl font-bold">Segundo Panel (En construcción)</h1>
-        </div>
+
+      {currentScreen === 'menu' && (
+        <ArrayMenuPanel
+          onBack={() => setCurrentScreen('presentation')}
+          onSelectOrdered={() => alert('Próximamente: Panel Arreglos Ordenados')}
+          onSelectUnordered={() => alert('Próximamente: Panel Arreglos Desordenados')}
+        />
       )}
-    </div>
+    </main>
   );
 }
-
-export default App;
