@@ -11,9 +11,9 @@ export const OrderedArrayPanel: React.FC<OrderedArrayPanelProps> = ({
   onSelectExercise,
 }) => {
   const exercises = [
-    { id: 4, title: 'Ejercicio 4', desc: 'Registro de Alumnos' },
-    { id: 5, title: 'Ejercicio 5', desc: 'Registro de Clientes' },
-    { id: 6, title: 'Ejercicio 6', desc: 'Registro de Empleados' },
+    { id: 4, title: 'Ejercicio 4', desc: 'Registro de Empleados' },
+    { id: 5, title: 'Ejercicio 5', desc: 'Renta de Departamentos' },
+    { id: 6, title: 'Ejercicio 6', desc: 'Registro de Vendedores' },
   ];
 
   return (

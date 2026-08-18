@@ -58,7 +58,7 @@ export const DisorderedArrayPanel: React.FC<DisorderedArrayPanelProps> = ({
         ))}
       </main>
 
-      {/* Botón Atrás con animación de flecha hacia la izquierda */}
+      {/* Botón Atrás */}
       <footer className="flex justify-end w-full max-w-4xl mx-auto">
         <button
           onClick={onBack}
