@@ -2,9 +2,10 @@ import { useState } from 'react';
 import { PresentationPanel } from './PresentationPanel';
 import { ArrayMenuPanel } from './ArrayMenuPanel';
 import { OrderedArrayPanel } from './OrderedArrayPanel';
+import { DisorderedArrayPanel } from './DisorderedArrayPanel';
 
 export default function App() {
-  const [currentScreen, setCurrentScreen] = useState<'presentation' | 'menu' | 'ordered' | 'unordered'>('presentation');
+  const [currentScreen, setCurrentScreen] = useState<'presentation' | 'menu' | 'ordered' | 'disordered'>('presentation');
 
   return (
     <main className="w-full min-h-screen">
@@ -16,7 +17,7 @@ export default function App() {
         <ArrayMenuPanel
           onBack={() => setCurrentScreen('presentation')}
           onSelectOrdered={() => setCurrentScreen('ordered')}
-          onSelectUnordered={() => alert('Próximamente: Panel Arreglos Desordenados')}
+          onSelectUnordered={() => setCurrentScreen('disordered')}
         />
       )}
 
@@ -24,6 +25,13 @@ export default function App() {
         <OrderedArrayPanel
           onBack={() => setCurrentScreen('menu')}
           onSelectExercise={(id) => console.log(`Ejercicio seleccionado: ${id}`)}
+        />
+      )}
+
+      {currentScreen === 'disordered' && (
+        <DisorderedArrayPanel
+          onBack={() => setCurrentScreen('menu')}
+          onSelectExercise={(id) => console.log(`Ejercicio desordenado seleccionado: ${id}`)}
         />
       )}
     </main>
