@@ -50,22 +50,6 @@ export const ArrayMenuPanel: React.FC<ArrayMenuPanelProps> = ({
 
       {/* Tarjetas Centradas */}
       <main className="flex-1 flex flex-col md:flex-row items-center justify-center gap-8 max-w-4xl mx-auto w-full my-auto py-6 z-10 px-4">
-        {/* Tarjeta Ordenados */}
-        <button
-          onClick={onSelectOrdered}
-          className="relative w-full md:w-1/2 p-10 bg-[#121829] rounded-3xl border-2 border-purple-500/60 shadow-[0_0_30px_rgba(168,85,247,0.35)] hover:shadow-[0_0_50px_rgba(168,85,247,0.6)] hover:border-purple-400 transition-all duration-300 transform hover:-translate-y-2 flex flex-col items-center justify-center cursor-pointer group"
-        >
-          <div className="absolute top-5 right-5 w-4 h-4 bg-purple-500 rounded-full shadow-[0_0_15px_#A855F7]"></div>
-          <div className="w-20 h-20 rounded-2xl bg-purple-500/10 border border-purple-500/30 flex items-center justify-center mb-6 text-purple-400 group-hover:scale-110 group-hover:bg-purple-500/20 transition-all">
-            <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M3 4h13M3 8h10M3 12h7m4 0l4-4m0 0l4 4m-4-4v12" />
-            </svg>
-          </div>
-          <h2 className="text-3xl font-black text-purple-200 tracking-wider">
-            Ordenados
-          </h2>
-        </button>
-
         {/* Tarjeta Desordenados */}
         <button
           onClick={onSelectUnordered}
@@ -81,7 +65,24 @@ export const ArrayMenuPanel: React.FC<ArrayMenuPanelProps> = ({
             Desordenados
           </h2>
         </button>
-      </main>
+
+      {/* Tarjeta Ordenados */}
+          <button
+            onClick={onSelectOrdered}
+            className="relative w-full md:w-1/2 p-10 bg-[#121829] rounded-3xl border-2 border-purple-500/60 shadow-[0_0_30px_rgba(168,85,247,0.35)] hover:shadow-[0_0_50px_rgba(168,85,247,0.6)] hover:border-purple-400 transition-all duration-300 transform hover:-translate-y-2 flex flex-col items-center justify-center cursor-pointer group"
+          >
+            <div className="absolute top-5 right-5 w-4 h-4 bg-purple-500 rounded-full shadow-[0_0_15px_#A855F7]"></div>
+            <div className="w-20 h-20 rounded-2xl bg-purple-500/10 border border-purple-500/30 flex items-center justify-center mb-6 text-purple-400 group-hover:scale-110 group-hover:bg-purple-500/20 transition-all">
+              <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M3 4h13M3 8h10M3 12h7m4 0l4-4m0 0l4 4m-4-4v12" />
+              </svg>
+            </div>
+            <h2 className="text-3xl font-black text-purple-200 tracking-wider">
+              Ordenados
+            </h2>
+          </button>
+        </main>
+
 
       {/* Pie de página con botón Atrás */}
       <footer className="w-full flex justify-start items-center pt-8 mt-2 z-10">
