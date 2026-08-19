@@ -3,9 +3,12 @@ import { PresentationPanel } from './PresentationPanel';
 import { ArrayMenuPanel } from './ArrayMenuPanel';
 import { OrderedArrayPanel } from './OrderedArrayPanel';
 import { DisorderedArrayPanel } from './DisorderedArrayPanel';
+import { Exercise4Panel } from './Exercise4Panel';
 
 export default function App() {
-  const [currentScreen, setCurrentScreen] = useState<'presentation' | 'menu' | 'ordered' | 'unordered'>('presentation');
+  const [currentScreen, setCurrentScreen] = useState<
+    'presentation' | 'menu' | 'ordered' | 'unordered' | 'exercise4'
+  >('presentation');
 
   return (
     <main className="w-full min-h-screen">
@@ -24,7 +27,13 @@ export default function App() {
       {currentScreen === 'ordered' && (
         <OrderedArrayPanel
           onBack={() => setCurrentScreen('menu')}
-          onSelectExercise={(id) => console.log(`Ejercicio Ordenado seleccionado: ${id}`)}
+          onSelectExercise={(id) => {
+            if (id === 4) {
+              setCurrentScreen('exercise4');
+            } else {
+              console.log(`Ejercicio Ordenado seleccionado: ${id}`);
+            }
+          }}
         />
       )}
 
@@ -32,6 +41,12 @@ export default function App() {
         <DisorderedArrayPanel
           onBack={() => setCurrentScreen('menu')}
           onSelectExercise={(id) => console.log(`Ejercicio Desordenado seleccionado: ${id}`)}
+        />
+      )}
+
+      {currentScreen === 'exercise4' && (
+        <Exercise4Panel
+          onBack={() => setCurrentScreen('ordered')}
         />
       )}
     </main>
