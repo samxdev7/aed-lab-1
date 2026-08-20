@@ -1,21 +1,22 @@
 import React, { useState } from 'react';
 import { ArrowLeft, Check, UserPlus, UserMinus, UserCheck, Users, Edit3 } from 'lucide-react';
 
-interface Exercise1PanelProps {
+interface Exercise2PanelProps {
   onBack: () => void;
 }
 
 type ActionType = 'alta' | 'baja' | 'modificar' | 'listarTodos' | 'listarUno';
 
-export const Exercise1Panel: React.FC<Exercise1PanelProps> = ({ onBack }) => {
+export const Exercise2Panel: React.FC<Exercise2PanelProps> = ({ onBack }) => {
   const [arraySize, setArraySize] = useState<string>('7');
   const [isSizeSet, setIsSizeSet] = useState<boolean>(true);
   const [selectedAction, setSelectedAction] = useState<ActionType>('alta');
 
-  // Campos de formulario ficticios para el frontend
-  const [studentName, setStudentName] = useState('');
-  const [studentSemesters, setStudentSemesters] = useState('');
-  const [studentAverage, setStudentAverage] = useState('');
+  // Campos de formulario para el ejercicio de clientes
+  const [clientName, setClientName] = useState('');
+  const [clientPhone, setClientPhone] = useState('');
+  const [clientBalance, setClientBalance] = useState('');
+  const [isDefaulting, setIsDefaulting] = useState<boolean>(false);
 
   return (
     <div className="min-h-screen bg-[#0a0d18] text-white flex flex-col justify-between p-8 font-sans">
@@ -25,10 +26,10 @@ export const Exercise1Panel: React.FC<Exercise1PanelProps> = ({ onBack }) => {
           Arreglos desordenados
         </span>
         <h1 className="text-3xl font-extrabold tracking-tight mt-2 mb-1">
-          Ejercicio 1: Registro de Alumnos
+          Ejercicio 2: Registro de Clientes
         </h1>
         <p className="text-sm font-medium text-slate-400">
-          Registro y Control de Alumnos de Escuela
+          Registro y Control Financiero de Clientes
         </p>
       </header>
 
@@ -44,7 +45,6 @@ export const Exercise1Panel: React.FC<Exercise1PanelProps> = ({ onBack }) => {
             <div className="flex items-center gap-2">
               <input
                 type="number"
-                min="1"
                 value={arraySize}
                 onChange={(e) => {
                   const val = Number(e.target.value);
@@ -53,18 +53,18 @@ export const Exercise1Panel: React.FC<Exercise1PanelProps> = ({ onBack }) => {
                   } else {
                     setArraySize(e.target.value);
                   }
-          setIsSizeSet(false);
+                  setIsSizeSet(false);
                 }}
                 className="w-20 bg-[#0a0d18] border border-cyan-500/40 rounded-xl px-3 py-1.5 text-center text-white font-bold text-lg focus:outline-none focus:border-cyan-400 transition-all"
                 placeholder="1"
               />
               <button
                 onClick={() => {
-                  if (Number(arraySize) > 0) {
-                    setIsSizeSet(true);
-                  }
-                }}
-                disabled={!arraySize || Number(arraySize) <= 0}
+              if (Number(arraySize) > 0) {
+            setIsSizeSet(true);
+          }
+        }}
+        disabled={!arraySize || Number(arraySize) <= 0}
                 className={`p-2 rounded-xl border transition-all flex items-center justify-center ${
                   isSizeSet
                     ? 'bg-cyan-500 text-white border-cyan-400 shadow-[0_0_10px_rgba(56,189,248,0.4)]'
@@ -92,9 +92,9 @@ export const Exercise1Panel: React.FC<Exercise1PanelProps> = ({ onBack }) => {
           <div className="grid grid-cols-2 md:grid-cols-5 gap-2">
             {[
               { id: 'alta', label: 'Dar de Alta', icon: UserPlus },
+              { id: 'modificar', label: 'Modificar Estado Moroso', icon: Edit3 },
               { id: 'baja', label: 'Dar de Baja', icon: UserMinus },
-              { id: 'modificar', label: 'Mod. Semestres y Promedio', icon: Edit3 },
-              { id: 'listarUno', label: 'Listar Alumno Determinado', icon: UserCheck },
+              { id: 'listarUno', label: 'Listar Cliente Determinado', icon: UserCheck },
               { id: 'listarTodos', label: 'Listar Todos', icon: Users },
             ].map((action) => {
               const Icon = action.icon;
@@ -127,77 +127,106 @@ export const Exercise1Panel: React.FC<Exercise1PanelProps> = ({ onBack }) => {
         {/* 3. Panel Dinámico según la acción seleccionada */}
         <div className="bg-[#11162b] border border-cyan-500/30 rounded-2xl p-6 min-h-[220px] flex flex-col justify-center">
           
-          {/* 1. Dar de Alta a un alumno */}
+          {/* 1. Dar de alta a un cliente */}
           {selectedAction === 'alta' && (
             <div className="flex flex-col gap-4 max-w-md mx-auto w-full">
               <h3 className="text-lg font-bold text-cyan-300 flex items-center gap-2 border-b border-cyan-500/20 pb-2">
-                <UserPlus className="w-5 h-5 text-cyan-400" /> Dar de Alta a un Alumno
+                <UserPlus className="w-5 h-5 text-cyan-400" /> Dar de Alta a un Cliente
               </h3>
               <div>
                 <label className="text-xs text-slate-400">Nombre Completo:</label>
                 <input
                   type="text"
-                  value={studentName}
-                  onChange={(e) => setStudentName(e.target.value)}
-                  placeholder="Ej: Ana María Gómez"
+                  value={clientName}
+                  onChange={(e) => setClientName(e.target.value)}
+                  placeholder="Ej: Roberto Carlos López"
                   className="w-full bg-[#0a0d18] border border-cyan-500/30 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-cyan-400"
                 />
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="text-xs text-slate-400">Semestres Cursados:</label>
+                  <label className="text-xs text-slate-400">Teléfono:</label>
                   <input
-                    type="number"
-                    min="0"
-                    max="100"
-                    step="1"
-                    value={studentSemesters}
-                    onChange={(e) => { 
-                        const val = Number(e.target.value);
-                        if (val < 0) setStudentSemesters('0');
-                        else if (val > 100) setStudentSemesters('100');
-                        else setStudentSemesters(e.target.value);
+                    type="text"
+                    value={clientPhone}
+                    onChange={(e) => {
+                    // Solo permite dígitos (0-9) y guiones (-)
+                    const formattedPhone = e.target.value.replace(/[^0-9-]/g, '');
+                    setClientPhone(formattedPhone);
                     }}
-                    placeholder="Ej: 4"
+                    placeholder="Ej: 5505-0192"
                     className="w-full bg-[#0a0d18] border border-cyan-500/30 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-cyan-400"
                   />
                 </div>
                 <div>
-                  <label className="text-xs text-slate-400">Calificación Promedio Total:</label>
+                  <label className="text-xs text-slate-400">Saldo Inicial ($):</label>
                   <input
                     type="number"
                     min="0"
-                    max="100"
-                    step="1"
-                    value={studentAverage}
-                    onChange={(e) => { 
-                        const val = Number(e.target.value);
-                        if (val < 0) setStudentAverage('0');
-                        else if (val > 100) setStudentAverage('100');
-                        else setStudentAverage(e.target.value);
-                    }}
-                    placeholder="Ej: 100"
+                    step="0.01"
+                    value={clientBalance}
+                    onChange={(e) => setClientBalance(e.target.value)}
+                    placeholder="Ej: 1500.50"
                     className="w-full bg-[#0a0d18] border border-cyan-500/30 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-cyan-400"
                   />
                 </div>
               </div>
+              <div className="flex items-center gap-2 mt-1">
+                <input
+                  type="checkbox"
+                  id="morosoCheck"
+                  checked={isDefaulting}
+                  onChange={(e) => setIsDefaulting(e.target.checked)}
+                  className="accent-cyan-400 w-4 h-4 cursor-pointer"
+                />
+                <label htmlFor="morosoCheck" className="text-xs text-slate-300 cursor-pointer">
+                  ¿Es Moroso? (Marcar si es Verdadero)
+                </label>
+              </div>
               <button className="mt-2 bg-cyan-600 hover:bg-cyan-500 text-white font-semibold py-2.5 px-4 rounded-xl transition-all shadow-[0_0_12px_rgba(56,189,248,0.3)] active:scale-95 text-sm">
-                Guardar Alumno
+                Guardar Cliente
               </button>
             </div>
           )}
 
-          {/* 2. Dar de Baja a un alumno */}
+          {/* 2. Modificar el estado moroso del cliente */}
+          {selectedAction === 'modificar' && (
+            <div className="flex flex-col gap-4 max-w-md mx-auto w-full">
+              <h3 className="text-lg font-bold text-cyan-300 flex items-center gap-2 border-b border-cyan-500/20 pb-2">
+                <Edit3 className="w-5 h-5 text-cyan-400" /> Modificar Estado Moroso
+              </h3>
+              <div>
+                <label className="text-xs text-slate-400">Nombre del Cliente:</label>
+                <input
+                  type="text"
+                  placeholder="Ej: Roberto Carlos López"
+                  className="w-full bg-[#0a0d18] border border-cyan-500/30 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-cyan-400"
+                />
+              </div>
+              <div>
+                <label className="text-xs text-slate-400 block mb-1">Nuevo Estado Moroso:</label>
+                <select className="w-full bg-[#0a0d18] border border-cyan-500/30 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-cyan-400">
+                  <option value="false">Falso (Al corriente)</option>
+                  <option value="true">Verdadero (Moroso)</option>
+                </select>
+              </div>
+              <button className="mt-2 bg-cyan-600 hover:bg-cyan-500 text-white font-semibold py-2.5 px-4 rounded-xl transition-all shadow-[0_0_12px_rgba(56,189,248,0.3)] active:scale-95 text-sm">
+                Actualizar Estado
+              </button>
+            </div>
+          )}
+
+          {/* 3. Dar de Baja a un cliente */}
           {selectedAction === 'baja' && (
             <div className="flex flex-col gap-4 max-w-md mx-auto w-full">
               <h3 className="text-lg font-bold text-red-400 flex items-center gap-2 border-b border-cyan-500/20 pb-2">
-                <UserMinus className="w-5 h-5 text-red-400" /> Dar de Baja a un Alumno
+                <UserMinus className="w-5 h-5 text-red-400" /> Dar de Baja a un Cliente
               </h3>
               <div>
-                <label className="text-xs text-slate-400">Ingrese Nombre Completo del Alumno:</label>
+                <label className="text-xs text-slate-400">Ingrese Nombre Completo del Cliente:</label>
                 <input
                   type="text"
-                  placeholder="Ej: Ana María Gómez"
+                  placeholder="Ej: Roberto Carlos López"
                   className="w-full bg-[#0a0d18] border border-cyan-500/30 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-red-400"
                 />
               </div>
@@ -207,72 +236,16 @@ export const Exercise1Panel: React.FC<Exercise1PanelProps> = ({ onBack }) => {
             </div>
           )}
 
-          {/* 3. Modificar número de semestre cursados y promedio total */}
-          {selectedAction === 'modificar' && (
-            <div className="flex flex-col gap-4 max-w-md mx-auto w-full">
-              <h3 className="text-lg font-bold text-cyan-300 flex items-center gap-2 border-b border-cyan-500/20 pb-2">
-                <Edit3 className="w-5 h-5 text-cyan-400" /> Modificar Semestres y Promedio
-              </h3>
-              <div>
-                <label className="text-xs text-slate-400">Nombre del Alumno:</label>
-                <input
-                  type="text"
-                  placeholder="Ej: Ana María Gómez"
-                  className="w-full bg-[#0a0d18] border border-cyan-500/30 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-cyan-400"
-                />
-              </div>
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="text-xs text-slate-400">Nuevos Semestres:</label>
-                  <input
-                    type="number"
-                    min="0"
-                    max="100"
-                    step="1"
-                    onChange={(e) => { 
-                        const val = Number(e.target.value);
-                        if (val < 0) setStudentSemesters('0');
-                        else if (val > 100) setStudentSemesters('100');
-                        else setStudentSemesters(e.target.value);
-                    }}
-                    placeholder="Ej: 5"
-                    className="w-full bg-[#0a0d18] border border-cyan-500/30 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-cyan-400"
-                  />
-                </div>
-                <div>
-                  <label className="text-xs text-slate-400">Nuevo Promedio:</label>
-                  <input
-                    type="number"
-                    min="0"
-                    max="100"
-                    step="1"
-                    onChange={(e) => { 
-                        const val = Number(e.target.value);
-                        if (val < 0) setStudentAverage('0');
-                        else if (val > 100) setStudentAverage('100');
-                        else setStudentAverage(e.target.value);
-                    }}
-                    placeholder="Ej: 100"
-                    className="w-full bg-[#0a0d18] border border-cyan-500/30 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-cyan-400"
-                  />
-                </div>
-              </div>
-              <button className="mt-2 bg-cyan-600 hover:bg-cyan-500 text-white font-semibold py-2.5 px-4 rounded-xl transition-all shadow-[0_0_12px_rgba(56,189,248,0.3)] active:scale-95 text-sm">
-                Actualizar Datos
-              </button>
-            </div>
-          )}
-
-          {/* 4. Listar nombre, numero de semestre cursado y promedio de un alumno determinado */}
+          {/* 4. Listar la información completa de un cliente determinado */}
           {selectedAction === 'listarUno' && (
             <div className="flex flex-col gap-4 max-w-md mx-auto w-full">
               <h3 className="text-lg font-bold text-cyan-300 flex items-center gap-2 border-b border-cyan-500/20 pb-2">
-                <UserCheck className="w-5 h-5 text-cyan-400" /> Consultar Alumno Determinado
+                <UserCheck className="w-5 h-5 text-cyan-400" /> Consultar Cliente Determinado
               </h3>
               <div className="flex gap-2">
                 <input
                   type="text"
-                  placeholder="Ingrese Nombre del Alumno"
+                  placeholder="Ingrese Nombre del Cliente"
                   className="flex-1 bg-[#0a0d18] border border-cyan-500/30 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-cyan-400"
                 />
                 <button className="bg-cyan-600 hover:bg-cyan-500 text-white font-semibold px-4 py-2 rounded-xl text-sm transition-all">
@@ -282,11 +255,11 @@ export const Exercise1Panel: React.FC<Exercise1PanelProps> = ({ onBack }) => {
             </div>
           )}
 
-          {/* 5. Listar todos los registros */}
+          {/* 5. Listar la información de todos los clientes */}
           {selectedAction === 'listarTodos' && (
             <div className="flex flex-col gap-3 w-full">
               <h3 className="text-lg font-bold text-cyan-300 flex items-center gap-2 border-b border-cyan-500/20 pb-2">
-                <Users className="w-5 h-5 text-cyan-400" /> Todos los Registros
+                <Users className="w-5 h-5 text-cyan-400" /> Información de Todos los Clientes
               </h3>
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-sm text-slate-300">
@@ -294,22 +267,25 @@ export const Exercise1Panel: React.FC<Exercise1PanelProps> = ({ onBack }) => {
                     <tr>
                       <th className="p-2.5 rounded-l-lg">Posición</th>
                       <th className="p-2.5">Nombre Completo</th>
-                      <th className="p-2.5">Semestres Cursados</th>
-                      <th className="p-2.5 rounded-r-lg">Promedio Total</th>
+                      <th className="p-2.5">Teléfono</th>
+                      <th className="p-2.5">Saldo</th>
+                      <th className="p-2.5 rounded-r-lg">Moroso</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-cyan-500/10">
                     <tr className="hover:bg-cyan-500/5">
                       <td className="p-2.5 font-mono text-cyan-400">[0]</td>
-                      <td className="p-2.5 font-medium text-white">Ana María Gómez</td>
-                      <td className="p-2.5">4 semestres</td>
-                      <td className="p-2.5">100</td>
+                      <td className="p-2.5 font-medium text-white">Roberto Carlos López</td>
+                      <td className="p-2.5">555-0192</td>
+                      <td className="p-2.5">$1,500.50</td>
+                      <td className="p-2.5 text-emerald-400 font-semibold">Falso</td>
                     </tr>
                     <tr className="hover:bg-cyan-500/5">
                       <td className="p-2.5 font-mono text-cyan-400">[1]</td>
-                      <td className="p-2.5 font-medium text-white">Carlos Mendoza</td>
-                      <td className="p-2.5">2 semestres</td>
-                      <td className="p-2.5">100</td>
+                      <td className="p-2.5 font-medium text-white">Lucía Fernández</td>
+                      <td className="p-2.5">555-0843</td>
+                      <td className="p-2.5">$3,200.00</td>
+                      <td className="p-2.5 text-red-400 font-semibold">Verdadero</td>
                     </tr>
                   </tbody>
                 </table>

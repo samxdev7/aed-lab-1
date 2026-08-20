@@ -4,13 +4,14 @@ import { ArrayMenuPanel } from './ArrayMenuPanel';
 import { OrderedArrayPanel } from './OrderedArrayPanel';
 import { DisorderedArrayPanel } from './DisorderedArrayPanel';
 import { Exercise1Panel } from './Exercise1Panel';
+import { Exercise2Panel } from './Exercise2Panel';
 import { Exercise4Panel } from './Exercise4Panel';
 import { Exercise5Panel } from './Exercise5Panel';
 import { Exercise6Panel } from './Exercise6Panel';
 
 export default function App() {
   const [currentScreen, setCurrentScreen] = useState<
-    'presentation' | 'menu' | 'ordered' | 'disordered' | 'exercise1' | 'exercise4' | 'exercise5' | 'exercise6'
+    'presentation' | 'menu' | 'ordered' | 'disordered' | 'exercise1' | 'exercise2' | 'exercise4' | 'exercise5' | 'exercise6'
   >('presentation');
 
   return (
@@ -50,6 +51,8 @@ export default function App() {
           onSelectExercise={(id) => {
             if(id === 1){
               setCurrentScreen('exercise1');
+            } else if(id === 2){
+              setCurrentScreen('exercise2');
             } else {
               console.log(`Ejercicio Desordenado seleccionado: ${id}`)
             }
@@ -59,6 +62,12 @@ export default function App() {
 
       {currentScreen === 'exercise1' && (
         <Exercise1Panel
+          onBack={() => setCurrentScreen('disordered')}
+        />
+      )}
+
+            {currentScreen === 'exercise2' && (
+        <Exercise2Panel
           onBack={() => setCurrentScreen('disordered')}
         />
       )}
