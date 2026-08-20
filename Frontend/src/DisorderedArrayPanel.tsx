@@ -23,12 +23,12 @@ export const DisorderedArrayPanel: React.FC<DisorderedArrayPanelProps> = ({
         <h1 className="text-4xl font-extrabold tracking-tight mb-3">
           Arreglos Desordenados
         </h1>
-        <div className="flex items-center justify-center gap-3 text-sky-400">
-          <span className="h-[1px] w-12 bg-sky-500/40"></span>
+        <div className="flex items-center justify-center gap-3 text-cyan-400">
+          <span className="h-[1px] w-12 bg-cyan-500/40"></span>
           <p className="text-sm font-medium text-slate-300">
             Selecciona el ejercicio que deseas ejecutar
           </p>
-          <span className="h-[1px] w-12 bg-sky-500/40"></span>
+          <span className="h-[1px] w-12 bg-cyan-500/40"></span>
         </div>
       </header>
 
@@ -38,27 +38,27 @@ export const DisorderedArrayPanel: React.FC<DisorderedArrayPanelProps> = ({
           <button
             key={item.id}
             onClick={() => onSelectExercise(item.id)}
-            className="group relative flex items-center justify-between p-5 rounded-2xl bg-[#11162b] border border-sky-500/30 hover:border-sky-500 transition-all duration-300 hover:shadow-[0_0_20px_rgba(56,189,248,0.25)] hover:-translate-y-0.5 text-left"
+            className="group relative flex items-center justify-between p-5 rounded-2xl bg-[#11162b] border border-cyan-500/30 hover:border-cyan-500 transition-all duration-300 hover:shadow-[0_0_20px_rgba(56,189,248,0.25)] hover:-translate-y-0.5 text-left"
           >
             <div className="flex items-center gap-4">
-              <div className="p-3 rounded-xl bg-sky-500/10 text-sky-400 group-hover:bg-sky-500 group-hover:text-white transition-colors duration-300">
+              <div className="p-3 rounded-xl bg-cyan-500/10 text-cyan-400 group-hover:bg-cyan-500 group-hover:text-white transition-colors duration-300">
                 {item.id === 1 && <BookOpen className="w-6 h-6" />}
                 {item.id === 2 && <Coins className="w-6 h-6" />}
                 {item.id === 3 && <User className="w-6 h-6" />}
               </div>
               <div>
-                <h3 className="text-xl font-bold text-white group-hover:text-sky-300 transition-colors">
+                <h3 className="text-xl font-bold text-white group-hover:text-cyan-300 transition-colors">
                   {item.title}
                 </h3>
                 <p className="text-sm text-slate-400 mt-0.5">{item.desc}</p>
               </div>
             </div>
-            <div className="w-3 h-3 rounded-full bg-sky-500/40 group-hover:bg-sky-400 group-hover:shadow-[0_0_8px_#38bdf8] transition-all" />
+            <div className="w-3 h-3 rounded-full bg-cyan-500/40 group-hover:bg-cyan-400 group-hover:shadow-[0_0_8px_#38bdf8] transition-all" />
           </button>
         ))}
       </main>
 
-      {/* Botón Atrás */}
+      {/* Botón Atrás con animación de flecha hacia la izquierda*/}
       <footer className="flex justify-end w-full max-w-4xl mx-auto">
         <button
           onClick={onBack}
