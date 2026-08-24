@@ -90,7 +90,7 @@ public class Ejercicio6 {
     }
 
     public VendedorDto[] imprimirTodosLosDatos() {
-        VendedorDto[] lista = new VendedorDto[tam];
+        VendedorDto[] lista = new VendedorDto[n+1];
         
         for (int i = 0; i <= n; i++) {
             lista[i] = new VendedorDto(tam, nombre[i], totalVentas[i]);

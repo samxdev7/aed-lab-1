@@ -3,31 +3,26 @@ package uni.AEDLab1.services;
 import uni.AEDLab1.models.EstudianteDto;
 
 /**
- * 1. En una escuela se tienen que almacenar en arreglos los siguientes datos 
- * para cada alumno: Nombre completo, Numero de semestres cursados, 
- * Calificación promedio total. Escriba un programa que, dada la información 
- * realice las siguientes operaciones:
- *      1. Dar de alta a un alumno
- *      2. Dar de baja a un alumno
- *      3. Modificar número de semestre cursados y promedio total
- *      4. Listar nombre, numero de semestre cursado y promedio de un alumno
- *      determinado
- *      5. Listar todos los registros.
- *      6. Salir
+ * Servicio para el Ejercicio 1 - Registro de Alumnos.
+ * Implementa la estructura física y operaciones de un arreglo desordenado.
  */
-
 public class Ejercicio1 {
-    private final int tam;
-    private int n;
+    // Atributos de control del arreglo
+    private final int tam; // Tamaño máximo físico del arreglo
+    private int n; // Índice del último elemento ingresado (-1 si está vacío)
     
+    // Arreglos paralelos para almacenar los datos de los alumnos
     private final String[] nombre;
     private final int[] nSemestresCursados;
     private final float[] promedioTotal;
     
+    /**
+     * Constructor que inicializa los arreglos paralelos con el tamaño máximo definido.
+     * @param tam Tamaño físico del arreglo.
+     */
     public Ejercicio1(int tam) {
         this.n = -1;
         this.tam = tam;
-        
         this.nombre = new String[tam];
         this.nSemestresCursados = new int[tam];
         this.promedioTotal = new float[tam];
@@ -35,72 +30,107 @@ public class Ejercicio1 {
     
     public int getTam() {
         return this.tam;
-    };
+    }
 
-    public void agregarAlumno(EstudianteDto estudiante) {
+    /**
+     * Agrega un nuevo alumno al final del arreglo desordenado.
+     * @param estudiante DTO con los datos del alumno.
+     * @return true si se agregó con éxito, false si el arreglo está lleno.
+     */
+    public boolean agregarAlumno(EstudianteDto estudiante) {
+        // Validación de límite físico del arreglo para evitar desbordamientos
         if (n >= tam - 1) {
-            /* "No hay espacio" */
-            return;
+            return false;
         }
         
         nombre[++n] = estudiante.getNombre();
         nSemestresCursados[n] = estudiante.getNSemestresCursados();
         promedioTotal[n] = estudiante.getPromedioTotal();
+        return true;
     }
 
-    public void eliminarAlumno(String estudianteNombre) {
+    /**
+     * Elimina un alumno por su nombre, manteniendo la estructura compacta.
+     * En un arreglo desordenado, se recorren los elementos posteriores hacia la izquierda.
+     * @param estudianteNombre Nombre completo a eliminar.
+     * @return true si se encontró y eliminó, false si no existía.
+     */
+    public boolean eliminarAlumno(String estudianteNombre) {
         int i = 0;
 
-        while (i <= n && !estudianteNombre.equalsIgnoreCase(nombre[i])) i++;
+        // Búsqueda secuencial para encontrar el índice del alumno
+        while (i <= n && !estudianteNombre.equalsIgnoreCase(nombre[i])) {
+            i++;
+        }
 
+        // Si el índice superó el límite lógico actual 'n', el alumno no existe
         if (i > n) { 
-//            "No se encuentra un alumno llamado " + estudiante;
-            return;
+            return false;
         }
         
+        // Desplazamiento a la izquierda para compactar y no dejar huecos
         for (int k = i; k < n; k++) {
             nombre[k] = nombre[k+1];
             nSemestresCursados[k] = nSemestresCursados[k+1];
             promedioTotal[k] = promedioTotal[k+1];
         }
 
-        --n;
+        --n; // Decrementamos el límite lógico de elementos válidos
+        return true;
     }
 
-    public void modificarNSemestresYPromedio(EstudianteDto estudiante) {
+    /**
+     * Modifica los datos de un alumno por coincidencia de nombre exacto.
+     * @param estudiante DTO con los nuevos datos del alumno.
+     * @return true si se encontró y actualizó, false si no se encontró.
+     */
+    public boolean modificarNSemestresYPromedio(EstudianteDto estudiante) {
         int i = 0;
         String objetivo = estudiante.getNombre();
 
-        while (i <= n && !objetivo.equalsIgnoreCase(nombre[i])) i++;
+        // Búsqueda secuencial
+        while (i <= n && !objetivo.equalsIgnoreCase(nombre[i])) {
+            i++;
+        }
 
         if (i > n) {
-//            "No se encuentra un alumno llamado " + estudiante;
-            return;
+            return false;
         }
         
+        // Actualización de los datos correspondientes en el mismo índice
         nSemestresCursados[i] = estudiante.getNSemestresCursados();
         promedioTotal[i] = estudiante.getPromedioTotal();
+        return true;
     }
 
+    /**
+     * Busca y retorna los datos de un alumno determinado.
+     * @param estudianteNombre Nombre del alumno a consultar.
+     * @return DTO del alumno, o null si no se encuentra.
+     */
     public EstudianteDto imprimirDatosDeUnAlumno(String estudianteNombre) {
         int i = 0;
         
-        while (i <= n && !(estudianteNombre.compareTo(nombre[i]) < 0)) i++;
+        while (i <= n && !estudianteNombre.equalsIgnoreCase(nombre[i])) {
+            i++;
+        }
         
         if (i > n) {
-//            "No se encuentra un alumno llamado " + estudiante;
             return null;
         }
         
-        return new EstudianteDto(tam, estudianteNombre, nSemestresCursados[i], promedioTotal[i]);
+        return new EstudianteDto(tam, nombre[i], nSemestresCursados[i], promedioTotal[i]);
     }
     
+    /**
+     * Obtiene todos los alumnos actualmente almacenados en el arreglo lógico.
+     * @return Arreglo de DTOs con la longitud exacta de alumnos ingresados.
+     */
     public EstudianteDto[] imprimirTodosLosDatos() {
-        EstudianteDto[] listaEstudiantes = new EstudianteDto[tam];
+        EstudianteDto[] listaEstudiantes = new EstudianteDto[n+1];
         
         for (int i = 0; i <= n; i++) {
-            listaEstudiantes[i] = new EstudianteDto(tam, nombre[i], nSemestresCursados[i], 
-                promedioTotal[i]);
+            listaEstudiantes[i] = new EstudianteDto(tam, nombre[i], nSemestresCursados[i], promedioTotal[i]);
         }
         
         return listaEstudiantes;

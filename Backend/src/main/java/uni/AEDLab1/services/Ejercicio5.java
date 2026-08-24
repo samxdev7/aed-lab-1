@@ -3,35 +3,27 @@ package uni.AEDLab1.services;
 import uni.AEDLab1.models.DepartamentoDto;
 
 /**
- * 5. Una inmobiliaria necesita almacenar la siguiente información sobre los
- * departamentos rentados que se encuentran ordenados ascendentemente por la extensión
- * del departamento:
- * 
- * • Ubicación del departamento (dirección)
- * • Extensión del departamento (superficie en metros cuadrados de cada departamento)
- * • Precio
- * • Número de apartamento
- * • Nombre de la persona que rentó el departamento
- * 
- * Escriba un programa que pueda llevar a cabo las siguientes operaciones.
- * 1. Dar de alta a un departamento (Se renta y se pide la información)
- * 2. Dar de baja al departamento (Se libera el departamento)
- * 3. Modificar el precio de un departamento por medio de su número.
- * 4. Listar los datos de un departamento determinado.
- * 5. Listar los datos de todos los registros.
- * 6. Salir
+ * Servicio para el Ejercicio 5 - Renta de Departamentos.
+ * Mantiene los departamentos ordenados de forma ascendente por su extensión (superficie en m²).
+ * Asegura números de departamento únicos y permite el registro, liberación, modificación de precios,
+ * y consultas de información.
  */
-
 public class Ejercicio5 {
-    private final int tam;
-    private int n;
+    // Atributos de control del arreglo
+    private final int tam; // Tamaño físico máximo del arreglo
+    private int n; // Índice del último elemento registrado (-1 si está vacío)
     
+    // Arreglos paralelos para los atributos de los departamentos
     private final String[] ubicacion;
     private final float[] extension;
     private final float[] precio;
     private final String[] numero;
     private final String[] inquilino;
     
+    /**
+     * Constructor que inicializa los arreglos paralelos con el tamaño configurado.
+     * @param tam Tamaño físico máximo.
+     */
     public Ejercicio5(int tam) {
         this.n = -1;
         this.tam = tam;
@@ -47,6 +39,11 @@ public class Ejercicio5 {
         return this.tam;
     }
 
+    /**
+     * Busca secuencialmente un departamento por su número único.
+     * @param numeroDepto Número de departamento a consultar.
+     * @return El índice si se encuentra, o -1 si no.
+     */
     private int buscarPorNumero(String numeroDepto) {
         for (int i = 0; i <= n; i++) {
             if (numero[i].equalsIgnoreCase(numeroDepto)) {
@@ -56,14 +53,20 @@ public class Ejercicio5 {
         return -1;
     }
 
-    public void agregarDepartamento(DepartamentoDto depto) {
+    /**
+     * Registra/renta un departamento colocándolo ordenado por extensión (superficie).
+     * @param depto DTO con los datos del departamento.
+     * @return true si se agregó con éxito, false si el arreglo está lleno o si el número ya existe.
+     */
+    public boolean agregarDepartamento(DepartamentoDto depto) {
+        // Validar límite físico de almacenamiento
         if (n >= tam - 1) {
-            return;
+            return false;
         }
 
-        // Evitar duplicados por número de apartamento
+        // Evitar duplicados por número de apartamento (identificador único)
         if (buscarPorNumero(depto.getNumero()) >= 0) {
-            return;
+            return false;
         }
 
         // Buscar posición de inserción para mantener orden ascendente por extensión
@@ -73,7 +76,9 @@ public class Ejercicio5 {
             insertPos++;
         }
 
-        n++;
+        n++; // Incrementamos el límite lógico
+        
+        // Desplazamiento a la derecha de los elementos para abrir el espacio
         for (int i = n; i >= insertPos + 1; i--) {
             ubicacion[i] = ubicacion[i-1];
             extension[i] = extension[i-1];
@@ -82,20 +87,28 @@ public class Ejercicio5 {
             inquilino[i] = inquilino[i-1];
         }
 
+        // Guardamos en la posición ordenada
         ubicacion[insertPos] = depto.ubicacion();
         extension[insertPos] = depto.getExtension();
         precio[insertPos] = depto.getPrecio();
         numero[insertPos] = depto.getNumero();
         inquilino[insertPos] = depto.getInquilino();
+        return true;
     }
 
-    public void eliminarDepartamento(String numeroDepto) {
+    /**
+     * Elimina/libera un departamento por su número, compactando el arreglo.
+     * @param numeroDepto Número del departamento a liberar.
+     * @return true si se liberó con éxito, false si no estaba registrado.
+     */
+    public boolean eliminarDepartamento(String numeroDepto) {
         int pos = buscarPorNumero(numeroDepto);
         if (pos < 0) {
-            return; // No rentado
+            return false; // No rentado / no existe
         }
 
         n--;
+        // Desplazamiento a la izquierda para cubrir la vacante y mantener el arreglo compacto y ordenado
         for (int i = pos; i <= n; i++) {
             ubicacion[i] = ubicacion[i+1];
             extension[i] = extension[i+1];
@@ -103,17 +116,29 @@ public class Ejercicio5 {
             numero[i] = numero[i+1];
             inquilino[i] = inquilino[i+1];
         }
+        return true;
     }
 
-    public void modificarPrecio(DepartamentoDto depto) {
+    /**
+     * Modifica el precio de un departamento rentado.
+     * @param depto DTO con el número y el nuevo precio.
+     * @return true si se actualizó con éxito, false si no se encontró.
+     */
+    public boolean modificarPrecio(DepartamentoDto depto) {
         int pos = buscarPorNumero(depto.getNumero());
         if (pos < 0) {
-            return; // No encontrado
+            return false; // No encontrado
         }
         
         precio[pos] = depto.getPrecio();
+        return true;
     }
 
+    /**
+     * Busca y retorna los datos de un departamento determinado por su número.
+     * @param numeroDepto Número de departamento a consultar.
+     * @return DTO del departamento, o null si no se encuentra.
+     */
     public DepartamentoDto imprimirDatosDeUnDepartamento(String numeroDepto) {
         int pos = buscarPorNumero(numeroDepto);
 
@@ -121,14 +146,20 @@ public class Ejercicio5 {
             return null;
         }
 
-        return new DepartamentoDto(tam, ubicacion[pos], extension[pos], precio[pos], numero[pos], inquilino[pos]);
+        return new DepartamentoDto(tam, ubicacion[pos], extension[pos], precio[pos], 
+            numero[pos], inquilino[pos]);
     }
 
+    /**
+     * Obtiene el listado completo de todos los departamentos en orden ascendente por extensión.
+     * @return Arreglo de DTOs con tamaño lógico exacto.
+     */
     public DepartamentoDto[] imprimirTodosLosDatos() {
-        DepartamentoDto[] lista = new DepartamentoDto[tam];
+        DepartamentoDto[] lista = new DepartamentoDto[n+1];
         
         for (int i = 0; i <= n; i++) {
-            lista[i] = new DepartamentoDto(tam, ubicacion[i], extension[i], precio[i], numero[i], inquilino[i]);
+            lista[i] = new DepartamentoDto(tam, ubicacion[i], extension[i], precio[i], 
+                numero[i], inquilino[i]);
         }
 
         return lista;
