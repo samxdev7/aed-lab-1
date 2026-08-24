@@ -9,6 +9,7 @@ import { Exercise3Panel } from './Exercise3Panel';
 import { Exercise4Panel } from './Exercise4Panel';
 import { Exercise5Panel } from './Exercise5Panel';
 import { Exercise6Panel } from './Exercise6Panel';
+import { NotificationProvider } from './NotificationContext';
 
 export default function App() {
   const [currentScreen, setCurrentScreen] = useState<
@@ -16,7 +17,8 @@ export default function App() {
   >('presentation');
 
   return (
-    <main className="w-full min-h-screen">
+    <NotificationProvider>
+      <main className="w-full min-h-screen">
       {currentScreen === 'presentation' && (
         <PresentationPanel onNext={() => setCurrentScreen('menu')} />
       )}
@@ -99,6 +101,7 @@ export default function App() {
         />
       )}
 
-    </main>
+      </main>
+    </NotificationProvider>
   );
 }

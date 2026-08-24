@@ -1,335 +1,451 @@
-import React, { useState } from 'react';
-import { ArrowLeft, Check, UserPlus, UserMinus, UserCheck, Users, Edit3 } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { UserPlus, UserMinus, UserCheck, Users, Edit3 } from 'lucide-react';
+import { API_KEY, fetchRequest, apiRequest } from './HTTPMethods';
+import { useNotification } from './NotificationContext';
+import { PanelHeader, ArraySizeConfig, PanelFooter, OperationSelector, FormInput } from './CommonComponents';
+
+// URL base del backend para las operaciones del Ejercicio 1 (Alumnos)
+const path: string = `${API_KEY}/estudiantes/estudiante`;
+
+// Interfaz que modela el DTO del Estudiante esperado por el backend
+interface Estudiante {
+  tam: number;
+  nombre: string;
+  nSemestresCursados: number;
+  promedioTotal: number;
+}
+
+// Tipo unión para representar las operaciones del menú de ejercicio
+type ActionType = 'alta' | 'baja' | 'modificar' | 'listarTodos' | 'listarUno';
 
 interface Exercise1PanelProps {
   onBack: () => void;
 }
 
-type ActionType = 'alta' | 'baja' | 'modificar' | 'listarTodos' | 'listarUno';
+// Función auxiliar para resetear los valores de los formularios al cambiar de operación
+const resetValues = (
+  setStudentName: (val: string) => void,
+  setStudentSemesters: (val: string) => void,
+  setStudentAverage: (val: string) => void
+) => {
+  setStudentName('');
+  setStudentSemesters('');
+  setStudentAverage('');
+};
+
+/**
+ * Componente interno para renderizar las filas de estudiantes en la tabla de resultados.
+ */
+const StudentRow = ({ students }: { students: Estudiante[] }) => {
+  if (!Array.isArray(students)) return null;
+
+  return (
+    <tbody className="divide-y divide-cyan-500/10">
+      {students.map((student: Estudiante, index: number) => (
+        <tr key={student.nombre + index} className="hover:bg-cyan-500/5">
+          <td className="p-2.5 font-mono text-cyan-400">[{index + 1}]</td>
+          <td className="p-2.5 font-medium text-white">{student.nombre}</td>
+          <td className="p-2.5">{student.nSemestresCursados}</td>
+          <td className="p-2.5">
+            {typeof student.promedioTotal === 'number' 
+              ? student.promedioTotal.toFixed(2) 
+              : student.promedioTotal}
+          </td>
+        </tr>
+      ))}
+    </tbody>
+  );
+};
+
+/**
+ * Componente modular para listar estudiantes.
+ * Soluciona la violación de hooks y los renders infinitos al reaccionar estrictamente
+ * a cambios en sus propiedades mediante el hook useEffect.
+ */
+const ListStudents = ({ allStudents, studentFound }: { allStudents: boolean; studentFound: any }) => {
+  const [data, setData] = useState<Estudiante[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    // Si la operación es listar todos, hacemos una consulta GET al servidor
+    if (allStudents) {
+      setLoading(true);
+      setError(null);
+      apiRequest<Estudiante[]>(path, { method: "GET" })
+        .then((res) => {
+          setData(res || []);
+          setLoading(false);
+        })
+        .catch((err) => {
+          console.error(err);
+          setError(err.message || 'Error al obtener los alumnos');
+          setLoading(false);
+        });
+    } else {
+      // Si la operación es listar un estudiante determinado, usamos el resultado de la búsqueda
+      if (studentFound) {
+        setData(Array.isArray(studentFound) ? studentFound : [studentFound]);
+      } else {
+        setData([]);
+      }
+      setLoading(false);
+      setError(null);
+    }
+  }, [allStudents, studentFound]); // Se ejecuta solo cuando cambian estos parámetros
+
+  if (loading) {
+    return <div className="text-center py-4 text-cyan-400">Cargando datos...</div>;
+  }
+
+  if (error) {
+    return <div className="text-center py-4 text-rose-400 font-semibold">{error}</div>;
+  }
+
+  if (data && data.length > 0) {
+    return (
+      <table className="w-full text-left text-sm text-slate-300">
+        <thead className="text-xs uppercase bg-[#0a0d18] text-cyan-400">
+          <tr>
+            <th className="p-2.5 rounded-l-lg">Posición</th>
+            <th className="p-2.5">Nombre Completo</th>
+            <th className="p-2.5">Semestres Cursados</th>
+            <th className="p-2.5 rounded-r-lg">Promedio Total</th>
+          </tr>
+        </thead>
+        <StudentRow students={data} />
+      </table>
+    );
+  }
+
+  return (
+    <div className="text-center py-4 text-slate-400">
+      No se encontraron registros para mostrar.
+    </div>
+  );
+};
 
 export const Exercise1Panel: React.FC<Exercise1PanelProps> = ({ onBack }) => {
+  // Hook de notificaciones flotantes (Pop Ups)
+  const { showNotification } = useNotification();
+  
+  // Estados para tamaño físico del arreglo
   const [arraySize, setArraySize] = useState<string>('7');
   const [isSizeSet, setIsSizeSet] = useState<boolean>(true);
+  
+  // Estado para la pestaña de operación activa
   const [selectedAction, setSelectedAction] = useState<ActionType>('alta');
+  
+  // Estado para el estudiante encontrado en la búsqueda individual
+  const [studentFound, setStudentFound] = useState<any>(null);
 
-  // Campos de formulario ficticios para el frontend
+  // Estados de control para campos de entrada de formularios
   const [studentName, setStudentName] = useState('');
   const [studentSemesters, setStudentSemesters] = useState('');
   const [studentAverage, setStudentAverage] = useState('');
+  const [searchName, setSearchName] = useState('');
+
+  // Definición de las operaciones disponibles en el selector
+  const actionsList = [
+    { id: 'alta' as ActionType, label: 'Dar de Alta', icon: UserPlus },
+    { id: 'baja' as ActionType, label: 'Dar de Baja', icon: UserMinus },
+    { id: 'modificar' as ActionType, label: 'Mod. Semestres y Promedio', icon: Edit3 },
+    { id: 'listarUno' as ActionType, label: 'Listar Alumno Determinado', icon: UserCheck },
+    { id: 'listarTodos' as ActionType, label: 'Listar Todos', icon: Users },
+  ];
 
   return (
     <div className="min-h-screen bg-[#0a0d18] text-white flex flex-col justify-between p-8 font-sans">
-      {/* Encabezado */}
-      <header className="text-center mt-2">
-        <span className="text-xs uppercase tracking-widest text-cyan-400 font-bold bg-cyan-500/10 px-3 py-1 rounded-full border border-cyan-500/20">
-          Arreglos desordenados
-        </span>
-        <h1 className="text-3xl font-extrabold tracking-tight mt-2 mb-1">
-          Ejercicio 1: Registro de Alumnos
-        </h1>
-        <p className="text-sm font-medium text-slate-400">
-          Registro y Control de Alumnos de Escuela
-        </p>
-      </header>
+      {/* Componente Modular: Encabezado */}
+      <PanelHeader
+        category="Arreglos desordenados"
+        title="Ejercicio 1: Registro de Alumnos"
+        subtitle="Registro y Control de Alumnos de Escuela"
+        colorScheme="cyan"
+      />
 
-      {/* Contenido Principal */}
       <main className="max-w-4xl mx-auto w-full flex flex-col gap-6 my-auto py-4">
-        
-        {/* 1. Ingresar Tamaño de Arreglo */}
-        <div className="bg-[#11162b] border border-cyan-500/30 rounded-2xl p-4 flex flex-wrap items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <span className="text-cyan-400 font-semibold text-sm">
-              Ingresar Tamaño del Arreglo:
-            </span>
-            <div className="flex items-center gap-2">
-              <input
-                type="number"
-                min="1"
-                value={arraySize}
-                onChange={(e) => {
-                  const val = Number(e.target.value);
-                  if (val < 1 && e.target.value !== '') {
-                    setArraySize('1');
-                  } else {
-                    setArraySize(e.target.value);
-                  }
-          setIsSizeSet(false);
-                }}
-                className="w-20 bg-[#0a0d18] border border-cyan-500/40 rounded-xl px-3 py-1.5 text-center text-white font-bold text-lg focus:outline-none focus:border-cyan-400 transition-all"
-                placeholder="1"
-              />
-              <button
-                onClick={() => {
-                  if (Number(arraySize) > 0) {
-                    setIsSizeSet(true);
-                  }
-                }}
-                disabled={!arraySize || Number(arraySize) <= 0}
-                className={`p-2 rounded-xl border transition-all flex items-center justify-center ${
-                  isSizeSet
-                    ? 'bg-cyan-500 text-white border-cyan-400 shadow-[0_0_10px_rgba(56,189,248,0.4)]'
-                    : 'bg-cyan-500/20 text-cyan-300 border-cyan-500/40 hover:bg-cyan-500 hover:text-white'
-                }`}
-                title="Establecer Tamaño"
-              >
-                <Check className="w-5 h-5" />
-              </button>
-            </div>
-          </div>
+        {/* Componente Modular: Configuración del tamaño físico de la estructura */}
+        <ArraySizeConfig
+          arraySize={arraySize}
+          setArraySize={setArraySize}
+          isSizeSet={isSizeSet}
+          setIsSizeSet={setIsSizeSet}
+          colorScheme="cyan"
+        />
 
-          {isSizeSet && (
-            <span className="text-xs text-cyan-300 bg-cyan-500/10 px-3 py-1.5 rounded-lg border border-cyan-500/20">
-              Tamaño definido: <strong className="text-white">{arraySize}</strong> elementos
-            </span>
-          )}
-        </div>
+        {/* Componente Modular: Selector de operaciones (con tipado genérico explícito) */}
+        <OperationSelector<ActionType>
+          selectedAction={selectedAction}
+          setSelectedAction={setSelectedAction}
+          actions={actionsList}
+          colorScheme="cyan"
+          onActionChange={() => {
+            // Limpia los campos e historial al cambiar de operación
+            resetValues(setStudentName, setStudentSemesters, setStudentAverage);
+            setSearchName('');
+            setStudentFound(null);
+          }}
+        />
 
-        {/* 2. Opciones de Acción */}
-        <div className="bg-[#11162b] border border-cyan-500/30 rounded-2xl p-4">
-          <label className="text-xs font-semibold text-slate-400 uppercase tracking-wider block mb-3">
-            Selecciona una Operación
-          </label>
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-2">
-            {[
-              { id: 'alta', label: 'Dar de Alta', icon: UserPlus },
-              { id: 'baja', label: 'Dar de Baja', icon: UserMinus },
-              { id: 'modificar', label: 'Mod. Semestres y Promedio', icon: Edit3 },
-              { id: 'listarUno', label: 'Listar Alumno Determinado', icon: UserCheck },
-              { id: 'listarTodos', label: 'Listar Todos', icon: Users },
-            ].map((action) => {
-              const Icon = action.icon;
-              const isSelected = selectedAction === action.id;
-              return (
-                <button
-                  key={action.id}
-                  onClick={() => setSelectedAction(action.id as ActionType)}
-                  className={`flex items-center gap-2 p-3 rounded-xl text-xs font-semibold border transition-all duration-200 justify-center ${
-                    isSelected
-                      ? 'bg-cyan-500 text-white border-cyan-400 shadow-[0_0_15px_rgba(56,189,248,0.3)] scale-[1.02]'
-                      : 'bg-[#0a0d18] text-slate-300 border-cyan-500/20 hover:border-cyan-500/50 hover:text-white'
-                  }`}
-                >
-                  <input
-                    type="radio"
-                    name="operation"
-                    checked={isSelected}
-                    onChange={() => {}}
-                    className="accent-cyan-400 cursor-pointer"
-                  />
-                  <Icon className="w-4 h-4" />
-                  <span>{action.label}</span>
-                </button>
-              );
-            })}
-          </div>
-        </div>
-
-        {/* 3. Panel Dinámico según la acción seleccionada */}
+        {/* Contenedor del panel dinámico de la operación seleccionada */}
         <div className="bg-[#11162b] border border-cyan-500/30 rounded-2xl p-6 min-h-[220px] flex flex-col justify-center">
           
-          {/* 1. Dar de Alta a un alumno */}
+          {/* VISTA: Dar de Alta */}
           {selectedAction === 'alta' && (
             <div className="flex flex-col gap-4 max-w-md mx-auto w-full">
               <h3 className="text-lg font-bold text-cyan-300 flex items-center gap-2 border-b border-cyan-500/20 pb-2">
                 <UserPlus className="w-5 h-5 text-cyan-400" /> Dar de Alta a un Alumno
               </h3>
-              <div>
-                <label className="text-xs text-slate-400">Nombre Completo:</label>
-                <input
-                  type="text"
-                  value={studentName}
-                  onChange={(e) => setStudentName(e.target.value)}
-                  placeholder="Ej: Ana María Gómez"
-                  className="w-full bg-[#0a0d18] border border-cyan-500/30 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-cyan-400"
+              <FormInput
+                label="Nombre Completo:"
+                value={studentName}
+                onChange={setStudentName}
+                placeholder="Ej: Ana María Gómez"
+                colorScheme="cyan"
+              />
+              <div className="grid grid-cols-2 gap-3">
+                <FormInput
+                  label="Semestres Cursados:"
+                  type="number"
+                  min="0"
+                  max="100"
+                  step="1"
+                  value={studentSemesters}
+                  onChange={(val) => {
+                    const numVal = Number(val);
+                    if (numVal < 0) setStudentSemesters('0');
+                    else if (numVal > 100) setStudentSemesters('100');
+                    else setStudentSemesters(val);
+                  }}
+                  placeholder="Ej: 4"
+                  colorScheme="cyan"
+                />
+                <FormInput
+                  label="Calificación Promedio Total:"
+                  type="number"
+                  min="0"
+                  max="100"
+                  step="1"
+                  value={studentAverage}
+                  onChange={(val) => {
+                    const numVal = Number(val);
+                    if (numVal < 0) setStudentAverage('0');
+                    else if (numVal > 100) setStudentAverage('100');
+                    else setStudentAverage(val);
+                  }}
+                  placeholder="Ej: 100"
+                  colorScheme="cyan"
                 />
               </div>
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="text-xs text-slate-400">Semestres Cursados:</label>
-                  <input
-                    type="number"
-                    min="0"
-                    max="100"
-                    step="1"
-                    value={studentSemesters}
-                    onChange={(e) => { 
-                        const val = Number(e.target.value);
-                        if (val < 0) setStudentSemesters('0');
-                        else if (val > 100) setStudentSemesters('100');
-                        else setStudentSemesters(e.target.value);
-                    }}
-                    placeholder="Ej: 4"
-                    className="w-full bg-[#0a0d18] border border-cyan-500/30 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-cyan-400"
-                  />
-                </div>
-                <div>
-                  <label className="text-xs text-slate-400">Calificación Promedio Total:</label>
-                  <input
-                    type="number"
-                    min="0"
-                    max="100"
-                    step="1"
-                    value={studentAverage}
-                    onChange={(e) => { 
-                        const val = Number(e.target.value);
-                        if (val < 0) setStudentAverage('0');
-                        else if (val > 100) setStudentAverage('100');
-                        else setStudentAverage(e.target.value);
-                    }}
-                    placeholder="Ej: 100"
-                    className="w-full bg-[#0a0d18] border border-cyan-500/30 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-cyan-400"
-                  />
-                </div>
-              </div>
-              <button className="mt-2 bg-cyan-600 hover:bg-cyan-500 text-white font-semibold py-2.5 px-4 rounded-xl transition-all shadow-[0_0_12px_rgba(56,189,248,0.3)] active:scale-95 text-sm">
+              <button
+                className="mt-2 bg-cyan-600 hover:bg-cyan-500 text-white font-semibold py-2.5 px-4 rounded-xl transition-all shadow-[0_0_12px_rgba(56,189,248,0.3)] active:scale-95 text-sm"
+                onClick={() => {
+                  if (!studentName.trim() || studentSemesters === '' || studentAverage === '') {
+                    showNotification('warning', 'Datos incompletos', 'Por favor, complete todos los campos.');
+                    return;
+                  }
+                  const estudiante: Estudiante = {
+                    tam: Number(arraySize),
+                    nombre: studentName.trim(),
+                    nSemestresCursados: Number(studentSemesters),
+                    promedioTotal: Number(studentAverage),
+                  };
+
+                  // Solicitud POST: maneja el éxito/error con notificaciones pop-up
+                  fetchRequest(path, { method: "POST", body: estudiante })
+                    .then(() => {
+                      showNotification('success', 'Éxito', `El alumno ${estudiante.nombre} ha sido registrado.`);
+                      resetValues(setStudentName, setStudentSemesters, setStudentAverage);
+                    })
+                    .catch((err: any) => {
+                      // Muestra el mensaje detallado enviado desde el backend (ej: arreglo lleno)
+                      showNotification('error', 'Error al registrar', err.message || 'No se pudo guardar el alumno.');
+                    });
+                }}
+              >
                 Guardar Alumno
               </button>
             </div>
           )}
 
-          {/* 2. Dar de Baja a un alumno */}
+          {/* VISTA: Dar de Baja */}
           {selectedAction === 'baja' && (
             <div className="flex flex-col gap-4 max-w-md mx-auto w-full">
               <h3 className="text-lg font-bold text-red-400 flex items-center gap-2 border-b border-cyan-500/20 pb-2">
                 <UserMinus className="w-5 h-5 text-red-400" /> Dar de Baja a un Alumno
               </h3>
-              <div>
-                <label className="text-xs text-slate-400">Ingrese Nombre Completo del Alumno:</label>
-                <input
-                  type="text"
-                  placeholder="Ej: Ana María Gómez"
-                  className="w-full bg-[#0a0d18] border border-cyan-500/30 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-red-400"
-                />
-              </div>
-              <button className="mt-2 bg-red-600/80 hover:bg-red-500 text-white font-semibold py-2.5 px-4 rounded-xl transition-all shadow-lg active:scale-95 text-sm">
+              <FormInput
+                label="Ingrese Nombre Completo del Alumno:"
+                value={studentName}
+                onChange={setStudentName}
+                placeholder="Ej: Ana María Gómez"
+                colorScheme="cyan"
+              />
+              <button
+                className="mt-2 bg-red-600/80 hover:bg-red-500 text-white font-semibold py-2.5 px-4 rounded-xl transition-all shadow-lg active:scale-95 text-sm"
+                onClick={() => {
+                  if (!studentName.trim()) {
+                    showNotification('warning', 'Campo vacío', 'Por favor, ingrese el nombre del alumno.');
+                    return;
+                  }
+                  // Solicitud DELETE: ahora el backend devuelve 404 si el alumno no existe, mostrando error exacto
+                  fetchRequest(path + `/${encodeURIComponent(studentName.trim())}`, { method: "DELETE" })
+                    .then(() => {
+                      showNotification('success', 'Éxito', `El alumno ${studentName.trim()} ha sido dado de baja.`);
+                      resetValues(setStudentName, setStudentSemesters, setStudentAverage);
+                    })
+                    .catch((err: any) => {
+                      showNotification('error', 'Error al eliminar', err.message || 'No se pudo eliminar al alumno.');
+                    });
+                }}
+              >
                 Dar de Baja
               </button>
             </div>
           )}
 
-          {/* 3. Modificar número de semestre cursados y promedio total */}
+          {/* VISTA: Modificar Semestres y Promedio */}
           {selectedAction === 'modificar' && (
             <div className="flex flex-col gap-4 max-w-md mx-auto w-full">
               <h3 className="text-lg font-bold text-cyan-300 flex items-center gap-2 border-b border-cyan-500/20 pb-2">
                 <Edit3 className="w-5 h-5 text-cyan-400" /> Modificar Semestres y Promedio
               </h3>
-              <div>
-                <label className="text-xs text-slate-400">Nombre del Alumno:</label>
-                <input
-                  type="text"
-                  placeholder="Ej: Ana María Gómez"
-                  className="w-full bg-[#0a0d18] border border-cyan-500/30 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-cyan-400"
+              <FormInput
+                label="Ingrese Nombre Completo del Alumno:"
+                value={studentName}
+                onChange={setStudentName}
+                placeholder="Ej: Ana María Gómez"
+                colorScheme="cyan"
+              />
+              <div className="grid grid-cols-2 gap-3">
+                <FormInput
+                  label="Nuevos Semestres:"
+                  type="number"
+                  min="0"
+                  max="100"
+                  step="1"
+                  value={studentSemesters}
+                  onChange={(val) => {
+                    const numVal = Number(val);
+                    if (numVal < 0) setStudentSemesters('0');
+                    else if (numVal > 100) setStudentSemesters('100');
+                    else setStudentSemesters(val);
+                  }}
+                  placeholder="Ej: 5"
+                  colorScheme="cyan"
+                />
+                <FormInput
+                  label="Nuevo Promedio:"
+                  type="number"
+                  min="0"
+                  max="100"
+                  step="1"
+                  value={studentAverage}
+                  onChange={(val) => {
+                    const numVal = Number(val);
+                    if (numVal < 0) setStudentAverage('0');
+                    else if (numVal > 100) setStudentAverage('100');
+                    else setStudentAverage(val);
+                  }}
+                  placeholder="Ej: 100"
+                  colorScheme="cyan"
                 />
               </div>
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="text-xs text-slate-400">Nuevos Semestres:</label>
-                  <input
-                    type="number"
-                    min="0"
-                    max="100"
-                    step="1"
-                    onChange={(e) => { 
-                        const val = Number(e.target.value);
-                        if (val < 0) setStudentSemesters('0');
-                        else if (val > 100) setStudentSemesters('100');
-                        else setStudentSemesters(e.target.value);
-                    }}
-                    placeholder="Ej: 5"
-                    className="w-full bg-[#0a0d18] border border-cyan-500/30 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-cyan-400"
-                  />
-                </div>
-                <div>
-                  <label className="text-xs text-slate-400">Nuevo Promedio:</label>
-                  <input
-                    type="number"
-                    min="0"
-                    max="100"
-                    step="1"
-                    onChange={(e) => { 
-                        const val = Number(e.target.value);
-                        if (val < 0) setStudentAverage('0');
-                        else if (val > 100) setStudentAverage('100');
-                        else setStudentAverage(e.target.value);
-                    }}
-                    placeholder="Ej: 100"
-                    className="w-full bg-[#0a0d18] border border-cyan-500/30 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-cyan-400"
-                  />
-                </div>
-              </div>
-              <button className="mt-2 bg-cyan-600 hover:bg-cyan-500 text-white font-semibold py-2.5 px-4 rounded-xl transition-all shadow-[0_0_12px_rgba(56,189,248,0.3)] active:scale-95 text-sm">
+              <button
+                className="mt-2 bg-cyan-600 hover:bg-cyan-500 text-white font-semibold py-2.5 px-4 rounded-xl transition-all shadow-[0_0_12px_rgba(56,189,248,0.3)] active:scale-95 text-sm"
+                onClick={() => {
+                  if (!studentName.trim() || studentSemesters === '' || studentAverage === '') {
+                    showNotification('warning', 'Datos incompletos', 'Por favor, complete todos los campos.');
+                    return;
+                  }
+                  const estudiante: Estudiante = {
+                    tam: Number(arraySize),
+                    nombre: studentName.trim(),
+                    nSemestresCursados: Number(studentSemesters),
+                    promedioTotal: Number(studentAverage),
+                  };
+
+                  // Solicitud PUT: el backend retorna 404 si el alumno no existe
+                  fetchRequest(path + `/${encodeURIComponent(studentName.trim())}`, { method: "PUT", body: estudiante })
+                    .then(() => {
+                      showNotification('success', 'Éxito', `Datos del alumno ${estudiante.nombre} modificados.`);
+                      resetValues(setStudentName, setStudentSemesters, setStudentAverage);
+                    })
+                    .catch((err: any) => {
+                      showNotification('error', 'Error al modificar', err.message || 'No se pudieron modificar los datos.');
+                    });
+                }}
+              >
                 Actualizar Datos
               </button>
             </div>
           )}
 
-          {/* 4. Listar nombre, numero de semestre cursado y promedio de un alumno determinado */}
+          {/* VISTA: Consultar Determinado */}
           {selectedAction === 'listarUno' && (
             <div className="flex flex-col gap-4 max-w-md mx-auto w-full">
               <h3 className="text-lg font-bold text-cyan-300 flex items-center gap-2 border-b border-cyan-500/20 pb-2">
                 <UserCheck className="w-5 h-5 text-cyan-400" /> Consultar Alumno Determinado
               </h3>
-              <div className="flex gap-2">
-                <input
-                  type="text"
-                  placeholder="Ingrese Nombre del Alumno"
-                  className="flex-1 bg-[#0a0d18] border border-cyan-500/30 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-cyan-400"
-                />
-                <button className="bg-cyan-600 hover:bg-cyan-500 text-white font-semibold px-4 py-2 rounded-xl text-sm transition-all">
+              <div className="flex gap-2 items-end">
+                <div className="flex-1">
+                  <FormInput
+                    label="Ingrese Nombre del Alumno:"
+                    value={searchName}
+                    onChange={setSearchName}
+                    placeholder="Ingrese Nombre del Alumno"
+                    colorScheme="cyan"
+                  />
+                </div>
+                <button
+                  className="bg-cyan-600 hover:bg-cyan-500 text-white font-semibold px-4 py-2 rounded-xl text-sm transition-all h-[38px] flex items-center justify-center active:scale-95"
+                  onClick={() => {
+                    if (!searchName.trim()) {
+                      showNotification('warning', 'Campo vacío', 'Por favor ingrese el nombre a buscar.');
+                      return;
+                    }
+                    // Solicitud GET individual: retorna el estudiante o 404
+                    apiRequest<Estudiante | null>(path + `/${encodeURIComponent(searchName.trim())}`, { method: "GET" })
+                      .then((res) => {
+                        if (res) {
+                          setStudentFound(res);
+                          showNotification('success', 'Búsqueda Exitosa', `Se encontró a ${res.nombre}.`);
+                        } else {
+                          setStudentFound(null);
+                          showNotification('info', 'No Encontrado', `No se encontró ningún alumno.`);
+                        }
+                      })
+                      .catch((err: any) => {
+                        console.error(err);
+                        setStudentFound(null);
+                        showNotification('error', 'Error de Búsqueda', err.message || 'Error al buscar el alumno.');
+                      });
+                  }}
+                >
                   Buscar
                 </button>
               </div>
+              <ListStudents allStudents={false} studentFound={studentFound} />
             </div>
           )}
 
-          {/* 5. Listar todos los registros */}
+          {/* VISTA: Listar Todos */}
           {selectedAction === 'listarTodos' && (
             <div className="flex flex-col gap-3 w-full">
               <h3 className="text-lg font-bold text-cyan-300 flex items-center gap-2 border-b border-cyan-500/20 pb-2">
                 <Users className="w-5 h-5 text-cyan-400" /> Todos los Registros
               </h3>
               <div className="overflow-x-auto">
-                <table className="w-full text-left text-sm text-slate-300">
-                  <thead className="text-xs uppercase bg-[#0a0d18] text-cyan-400">
-                    <tr>
-                      <th className="p-2.5 rounded-l-lg">Posición</th>
-                      <th className="p-2.5">Nombre Completo</th>
-                      <th className="p-2.5">Semestres Cursados</th>
-                      <th className="p-2.5 rounded-r-lg">Promedio Total</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-cyan-500/10">
-                    <tr className="hover:bg-cyan-500/5">
-                      <td className="p-2.5 font-mono text-cyan-400">[0]</td>
-                      <td className="p-2.5 font-medium text-white">Ana María Gómez</td>
-                      <td className="p-2.5">4 semestres</td>
-                      <td className="p-2.5">100</td>
-                    </tr>
-                    <tr className="hover:bg-cyan-500/5">
-                      <td className="p-2.5 font-mono text-cyan-400">[1]</td>
-                      <td className="p-2.5 font-medium text-white">Carlos Mendoza</td>
-                      <td className="p-2.5">2 semestres</td>
-                      <td className="p-2.5">100</td>
-                    </tr>
-                  </tbody>
-                </table>
+                <ListStudents allStudents={true} studentFound={null} />
               </div>
             </div>
           )}
-
         </div>
       </main>
 
-      {/* Botón Atrás (6. Salir) */}
-      <footer className="flex justify-end w-full max-w-4xl mx-auto mt-2">
-        <button
-          onClick={onBack}
-          className="group flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-cyan-600 to-blue-600 text-white font-semibold hover:from-cyan-500 hover:to-blue-500 transition-all duration-200 shadow-lg hover:shadow-cyan-500/25 active:scale-95"
-        >
-          <ArrowLeft className="w-5 h-5 transition-transform duration-200 group-hover:-translate-x-1" />
-          Salir
-        </button>
-      </footer>
+      {/* Componente Modular: Botón de salida */}
+      <PanelFooter onBack={onBack} label="Salir" colorScheme="cyan" />
     </div>
   );
 };

@@ -1,293 +1,437 @@
-import React, { useState } from 'react';
-import { ArrowLeft, Check, Home, Trash2, Edit3, ListFilter, Search } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { Home, Trash2, Edit3, ListFilter, Search } from 'lucide-react';
+import { API_KEY, fetchRequest, apiRequest } from './HTTPMethods';
+import { useNotification } from './NotificationContext';
+import { PanelHeader, ArraySizeConfig, PanelFooter, OperationSelector, FormInput } from './CommonComponents';
+
+// URL base del backend para las operaciones del Ejercicio 5 (Departamentos)
+const path: string = `${API_KEY}/departamentos/departamento`;
+
+// Interfaz que define el DTO de Departamento esperado por el backend
+interface Departamento {
+  tam: number;
+  ubicacion: string;
+  extension: number;
+  precio: number;
+  numero: string;
+  inquilino: string;
+}
+
+// Tipo unión para representar las operaciones del menú
+type ActionType = 'alta' | 'baja' | 'modificar' | 'listarTodos' | 'listarUno';
 
 interface Exercise5PanelProps {
   onBack: () => void;
 }
 
-type ActionType = 'alta' | 'baja' | 'modificar' | 'listarTodos' | 'listarUno';
+// Función auxiliar para resetear los valores de los formularios al cambiar de operación
+const resetValues = (
+  setDeptNum: (val: string) => void,
+  setRentPrice: (val: string) => void,
+  setTenantName: (val: string) => void,
+  setDeptAddress: (val: string) => void,
+  setDeptExt: (val: string) => void
+) => {
+  setDeptNum('');
+  setRentPrice('');
+  setTenantName('');
+  setDeptAddress('');
+  setDeptExt('');
+};
+
+/**
+ * Componente modular para listar departamentos.
+ * Carga dinámicamente todos los registros del backend u obtiene el resultado de búsqueda individual.
+ */
+const ListDepartments = ({ allDepartments, departmentFound }: { allDepartments: boolean; departmentFound: any }) => {
+  const [data, setData] = useState<Departamento[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    // Si la operación es listar todos los departamentos
+    if (allDepartments) {
+      setLoading(true);
+      setError(null);
+      apiRequest<Departamento[]>(path, { method: "GET" })
+        .then((res) => {
+          setData(res || []);
+          setLoading(false);
+        })
+        .catch((err) => {
+          console.error(err);
+          setError(err.message || 'Error al obtener los departamentos');
+          setLoading(false);
+        });
+    } else {
+      // Si la operación es listar un departamento buscado individualmente
+      if (departmentFound) {
+        setData(Array.isArray(departmentFound) ? departmentFound : [departmentFound]);
+      } else {
+        setData([]);
+      }
+      setLoading(false);
+      setError(null);
+    }
+  }, [allDepartments, departmentFound]); // Controlado por dependencias del listado
+
+  if (loading) {
+    return <div className="text-center py-4 text-purple-400">Cargando datos...</div>;
+  }
+
+  if (error) {
+    return <div className="text-center py-4 text-rose-400 font-semibold">{error}</div>;
+  }
+
+  if (data && data.length > 0) {
+    return (
+      <table className="w-full text-left text-sm text-slate-300">
+        <thead className="text-xs uppercase bg-[#0a0d18] text-purple-400">
+          <tr>
+            <th className="p-2.5 rounded-l-lg">Posición</th>
+            <th className="p-2.5">Nº Depto</th>
+            <th className="p-2.5">Inquilino</th>
+            <th className="p-2.5">Precio Renta</th>
+            <th className="p-2.5">Extensión</th>
+            <th className="p-2.5 rounded-r-lg">Ubicación</th>
+          </tr>
+        </thead>
+        <tbody className="divide-y divide-purple-500/10">
+          {data.map((dept: Departamento, index: number) => (
+            <tr key={dept.numero + index} className="hover:bg-purple-500/5">
+              <td className="p-2.5 font-mono text-purple-400">[{index + 1}]</td>
+              <td className="p-2.5 font-medium text-white">{dept.numero}</td>
+              <td className="p-2.5">{dept.inquilino}</td>
+              <td className="p-2.5 font-mono">${Number(dept.precio).toFixed(2)}</td>
+              <td className="p-2.5 font-mono">{Number(dept.extension).toFixed(1)} m²</td>
+              <td className="p-2.5 text-slate-400">{dept.ubicacion}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    );
+  }
+
+  return (
+    <div className="text-center py-4 text-slate-400">
+      No se encontraron registros para mostrar.
+    </div>
+  );
+};
 
 export const Exercise5Panel: React.FC<Exercise5PanelProps> = ({ onBack }) => {
+  // Hook del sistema de notificaciones pop-up
+  const { showNotification } = useNotification();
+
+  // Estados para tamaño físico del arreglo
   const [arraySize, setArraySize] = useState<string>('10');
   const [isSizeSet, setIsSizeSet] = useState<boolean>(true);
+  
+  // Estado para la operación seleccionada del menú
   const [selectedAction, setSelectedAction] = useState<ActionType>('alta');
+  
+  // Estado para guardar el departamento encontrado por búsqueda
+  const [departmentFound, setDepartmentFound] = useState<any>(null);
 
-  // Campos de formulario para Departamentos
+  // Estados de control para inputs del formulario
   const [deptNum, setDeptNum] = useState('');
   const [rentPrice, setRentPrice] = useState('');
   const [tenantName, setTenantName] = useState('');
+  const [deptAddress, setDeptAddress] = useState('');
+  const [deptExt, setDeptExt] = useState('');
+  const [searchNum, setSearchNum] = useState('');
+
+  // Configuración de las operaciones disponibles para el selector modular
+  const actionsList = [
+    { id: 'alta' as ActionType, label: 'Dar de Alta', icon: Home },
+    { id: 'baja' as ActionType, label: 'Dar de Baja', icon: Trash2 },
+    { id: 'modificar' as ActionType, label: 'Mod. Precio', icon: Edit3 },
+    { id: 'listarTodos' as ActionType, label: 'Listar Todos', icon: ListFilter },
+    { id: 'listarUno' as ActionType, label: 'Listar Uno', icon: Search },
+  ];
 
   return (
     <div className="min-h-screen bg-[#0a0d18] text-white flex flex-col justify-between p-8 font-sans">
-      {/* Encabezado */}
-      <header className="text-center mt-2">
-        <span className="text-xs uppercase tracking-widest text-purple-400 font-bold bg-purple-500/10 px-3 py-1 rounded-full border border-purple-500/20">
-          Arreglos Ordenados
-        </span>
-        <h1 className="text-3xl font-extrabold tracking-tight mt-2 mb-1">
-          Ejercicio 5: Departamentos
-        </h1>
-        <p className="text-sm font-medium text-slate-400">
-          Gestión y Control de Departamentos
-        </p>
-      </header>
+      {/* Componente Modular: Encabezado (Tema morado por ser arreglo ordenado) */}
+      <PanelHeader
+        category="Arreglos ordenados"
+        title="Ejercicio 5: Departamentos"
+        subtitle="Renta y Ordenación de Departamentos por Extensión"
+        colorScheme="purple"
+      />
 
-      {/* Contenido Principal */}
       <main className="max-w-4xl mx-auto w-full flex flex-col gap-6 my-auto py-4">
-        
-        {/* 1. Ingresar Tamaño de Arreglo */}
-        <div className="bg-[#11162b] border border-purple-500/30 rounded-2xl p-4 flex flex-wrap items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <span className="text-purple-400 font-semibold text-sm">
-              Ingresar Tamaño del Arreglo:
-            </span>
-            <div className="flex items-center gap-2">
-              <input
-                type="number"
-                value={arraySize}
-                onChange={(e) => {
-                  setArraySize(e.target.value);
-                  setIsSizeSet(false);
-                }}
-                className="w-20 bg-[#0a0d18] border border-purple-500/40 rounded-xl px-3 py-1.5 text-center text-white font-bold text-lg focus:outline-none focus:border-purple-400 transition-all"
-                placeholder="0"
-              />
-              <button
-                onClick={() => setIsSizeSet(true)}
-                className={`p-2 rounded-xl border transition-all flex items-center justify-center ${
-                  isSizeSet
-                    ? 'bg-purple-500 text-white border-purple-400 shadow-[0_0_10px_rgba(168,85,247,0.4)]'
-                    : 'bg-purple-500/20 text-purple-300 border-purple-500/40 hover:bg-purple-500 hover:text-white'
-                }`}
-                title="Establecer Tamaño"
-              >
-                <Check className="w-5 h-5" />
-              </button>
-            </div>
-          </div>
+        {/* Componente Modular: Tamaño del Arreglo */}
+        <ArraySizeConfig
+          arraySize={arraySize}
+          setArraySize={setArraySize}
+          isSizeSet={isSizeSet}
+          setIsSizeSet={setIsSizeSet}
+          colorScheme="purple"
+        />
 
-          {isSizeSet && (
-            <span className="text-xs text-purple-300 bg-purple-500/10 px-3 py-1.5 rounded-lg border border-purple-500/20">
-              Tamaño definido: <strong className="text-white">{arraySize}</strong> elementos
-            </span>
-          )}
-        </div>
+        {/* Componente Modular: Selector de Operaciones */}
+        <OperationSelector<ActionType>
+          selectedAction={selectedAction}
+          setSelectedAction={setSelectedAction}
+          actions={actionsList}
+          colorScheme="purple"
+          onActionChange={() => {
+            // Limpia campos al cambiar de operación
+            resetValues(setDeptNum, setRentPrice, setTenantName, setDeptAddress, setDeptExt);
+            setSearchNum('');
+            setDepartmentFound(null);
+          }}
+        />
 
-        {/* 2. Opciones de Acción (Radio buttons) */}
-        <div className="bg-[#11162b] border border-purple-500/30 rounded-2xl p-4">
-          <label className="text-xs font-semibold text-slate-400 uppercase tracking-wider block mb-3">
-            Selecciona una Operación
-          </label>
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-2">
-            {[
-              {
-                id: 'alta',
-                label: 'Dar de Alta',
-                icon: () => (
-                  <div className="flex items-center -space-x-1">
-                    <Home className="w-4 h-4" />
-                  </div>
-                ),
-              },
-              { id: 'baja', label: 'Dar de Baja', icon: Trash2 },
-              { id: 'modificar', label: 'Mod. Precio', icon: Edit3 },
-              { id: 'listarTodos', label: 'Listar Todos', icon: ListFilter },
-              { id: 'listarUno', label: 'Listar Uno', icon: Search },
-            ].map((action) => {
-              const Icon = action.icon;
-              const isSelected = selectedAction === action.id;
-              return (
-                <button
-                  key={action.id}
-                  onClick={() => setSelectedAction(action.id as ActionType)}
-                  className={`flex items-center gap-2 p-3 rounded-xl text-xs font-semibold border transition-all duration-200 justify-center ${
-                    isSelected
-                      ? 'bg-purple-500 text-white border-purple-400 shadow-[0_0_15px_rgba(168,85,247,0.3)] scale-[1.02]'
-                      : 'bg-[#0a0d18] text-slate-300 border-purple-500/20 hover:border-purple-500/50 hover:text-white'
-                  }`}
-                >
-                  <input
-                    type="radio"
-                    name="operation"
-                    checked={isSelected}
-                    onChange={() => {}}
-                    className="accent-purple-400 cursor-pointer"
-                  />
-                  <Icon className="w-4 h-4" />
-                  <span>{action.label}</span>
-                </button>
-              );
-            })}
-          </div>
-        </div>
-
-        {/* 3. Panel Dinámico según la acción seleccionada */}
+        {/* Panel dinámico */}
         <div className="bg-[#11162b] border border-purple-500/30 rounded-2xl p-6 min-h-[220px] flex flex-col justify-center">
           
-          {/* Dar de Alta */}
+          {/* VISTA: Dar de Alta */}
           {selectedAction === 'alta' && (
             <div className="flex flex-col gap-4 max-w-md mx-auto w-full">
               <h3 className="text-lg font-bold text-purple-300 flex items-center gap-2 border-b border-purple-500/20 pb-2">
-                <div className="flex items-center -space-x-1">
-                  <Home className="w-5 h-5 text-purple-400" />
-                </div>
-                Rentar / Dar de Alta Departamento
+                <Home className="w-5 h-5 text-purple-400" /> Rentar / Dar de Alta Departamento
               </h3>
               <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="text-xs text-slate-400">Número de Depto:</label>
-                  <input
-                    type="text"
-                    value={deptNum}
-                    onChange={(e) => setDeptNum(e.target.value)}
-                    placeholder="Eje: 101"
-                    className="w-full bg-[#0a0d18] border border-purple-500/30 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-purple-400"
-                  />
-                </div>
-                <div>
-                  <label className="text-xs text-slate-400">Precio Renta ($):</label>
-                  <input
-                    type="number"
-                    value={rentPrice}
-                    onChange={(e) => setRentPrice(e.target.value)}
-                    placeholder="Eje: 450"
-                    className="w-full bg-[#0a0d18] border border-purple-500/30 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-purple-400"
-                  />
-                </div>
-              </div>
-              <div>
-                <label className="text-xs text-slate-400">Nombre del Inquilino:</label>
-                <input
-                  type="text"
-                  value={tenantName}
-                  onChange={(e) => setTenantName(e.target.value)}
-                  placeholder="Eje: Juan Pérez"
-                  className="w-full bg-[#0a0d18] border border-purple-500/30 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-purple-400"
+                <FormInput
+                  label="Número de Depto:"
+                  value={deptNum}
+                  onChange={setDeptNum}
+                  placeholder="Ej: 101"
+                  colorScheme="purple"
+                />
+                <FormInput
+                  label="Extensión (m²):"
+                  type="number"
+                  min="1"
+                  step="0.1"
+                  value={deptExt}
+                  onChange={setDeptExt}
+                  placeholder="Ej: 75.5"
+                  colorScheme="purple"
                 />
               </div>
-              <button className="mt-2 bg-purple-600 hover:bg-purple-500 text-white font-semibold py-2.5 px-4 rounded-xl transition-all shadow-[0_0_12px_rgba(168,85,247,0.3)] active:scale-95 text-sm">
+              <div className="grid grid-cols-2 gap-3">
+                <FormInput
+                  label="Nombre del Inquilino:"
+                  value={tenantName}
+                  onChange={setTenantName}
+                  placeholder="Ej: Juan Pérez"
+                  colorScheme="purple"
+                />
+                <FormInput
+                  label="Precio Renta ($):"
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  value={rentPrice}
+                  onChange={setRentPrice}
+                  placeholder="Ej: 450.00"
+                  colorScheme="purple"
+                />
+              </div>
+              <FormInput
+                label="Ubicación / Dirección:"
+                value={deptAddress}
+                onChange={setDeptAddress}
+                placeholder="Ej: Edificio A, Apto 101, Zona 10"
+                colorScheme="purple"
+              />
+              <button
+                className="mt-2 bg-purple-600 hover:bg-purple-500 text-white font-semibold py-2.5 px-4 rounded-xl transition-all shadow-[0_0_12px_rgba(168,85,247,0.3)] active:scale-95 text-sm"
+                onClick={() => {
+                  if (!deptNum.trim() || !deptExt.trim() || !tenantName.trim() || !rentPrice.trim() || !deptAddress.trim()) {
+                    showNotification('warning', 'Campos vacíos', 'Por favor, complete todos los campos obligatorios.');
+                    return;
+                  }
+
+                  const nuevoDepto: Departamento = {
+                    tam: Number(arraySize),
+                    numero: deptNum.trim(),
+                    extension: Number(deptExt),
+                    inquilino: tenantName.trim(),
+                    precio: Number(rentPrice),
+                    ubicacion: deptAddress.trim(),
+                  };
+
+                  // Envío de POST
+                  fetchRequest(path, { method: "POST", body: nuevoDepto })
+                    .then(() => {
+                      showNotification('success', 'Éxito', `Departamento ${nuevoDepto.numero} ha sido rentado y guardado en orden.`);
+                      resetValues(setDeptNum, setRentPrice, setTenantName, setDeptAddress, setDeptExt);
+                    })
+                    .catch((err: any) => {
+                      showNotification('error', 'Error al registrar', err.message || 'No se pudo registrar la renta.');
+                    });
+                }}
+              >
                 Guardar Departamento
               </button>
             </div>
           )}
 
-          {/* Dar de Baja */}
+          {/* VISTA: Dar de Baja */}
           {selectedAction === 'baja' && (
             <div className="flex flex-col gap-4 max-w-md mx-auto w-full">
               <h3 className="text-lg font-bold text-red-400 flex items-center gap-2 border-b border-purple-500/20 pb-2">
                 <Trash2 className="w-5 h-5 text-red-400" /> Liberar / Dar de Baja Departamento
               </h3>
-              <div>
-                <label className="text-xs text-slate-400">Ingrese Número de Depto:</label>
-                <input
-                  type="text"
-                  placeholder="Eje: 101"
-                  className="w-full bg-[#0a0d18] border border-purple-500/30 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-red-400"
-                />
-              </div>
-              <button className="mt-2 bg-red-600/80 hover:bg-red-500 text-white font-semibold py-2.5 px-4 rounded-xl transition-all shadow-lg active:scale-95 text-sm">
+              <FormInput
+                label="Ingrese Número de Depto:"
+                value={deptNum}
+                onChange={setDeptNum}
+                placeholder="Ej: 101"
+                colorScheme="purple"
+              />
+              <button
+                className="mt-2 bg-red-600/80 hover:bg-red-500 text-white font-semibold py-2.5 px-4 rounded-xl transition-all shadow-lg active:scale-95 text-sm"
+                onClick={() => {
+                  if (!deptNum.trim()) {
+                    showNotification('warning', 'Campo vacío', 'Por favor, ingrese el número de departamento.');
+                    return;
+                  }
+
+                  // Envío de DELETE
+                  fetchRequest(path + `/${encodeURIComponent(deptNum.trim())}`, { method: "DELETE" })
+                    .then(() => {
+                      showNotification('success', 'Éxito', `El departamento ${deptNum.trim()} ha sido liberado.`);
+                      resetValues(setDeptNum, setRentPrice, setTenantName, setDeptAddress, setDeptExt);
+                    })
+                    .catch((err: any) => {
+                      showNotification('error', 'Error al liberar', err.message || 'No se pudo liberar el departamento.');
+                    });
+                }}
+              >
                 Liberar Departamento
               </button>
             </div>
           )}
 
-          {/* Modificar Precio */}
+          {/* VISTA: Modificar Precio */}
           {selectedAction === 'modificar' && (
             <div className="flex flex-col gap-4 max-w-md mx-auto w-full">
               <h3 className="text-lg font-bold text-purple-300 flex items-center gap-2 border-b border-purple-500/20 pb-2">
                 <Edit3 className="w-5 h-5 text-purple-400" /> Modificar Precio de Renta
               </h3>
               <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="text-xs text-slate-400">Número de Depto:</label>
-                  <input
-                    type="text"
-                    placeholder="Eje: 101"
-                    className="w-full bg-[#0a0d18] border border-purple-500/30 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-purple-400"
-                  />
-                </div>
-                <div>
-                  <label className="text-xs text-slate-400">Nuevo Precio ($):</label>
-                  <input
-                    type="number"
-                    placeholder="Eje: 500"
-                    className="w-full bg-[#0a0d18] border border-purple-500/30 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-purple-400"
-                  />
-                </div>
+                <FormInput
+                  label="Número de Depto:"
+                  value={deptNum}
+                  onChange={setDeptNum}
+                  placeholder="Ej: 101"
+                  colorScheme="purple"
+                />
+                <FormInput
+                  label="Nuevo Precio ($):"
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  value={rentPrice}
+                  onChange={setRentPrice}
+                  placeholder="Ej: 500.00"
+                  colorScheme="purple"
+                />
               </div>
-              <button className="mt-2 bg-purple-600 hover:bg-purple-500 text-white font-semibold py-2.5 px-4 rounded-xl transition-all shadow-[0_0_12px_rgba(168,85,247,0.3)] active:scale-95 text-sm">
+              <button
+                className="mt-2 bg-purple-600 hover:bg-purple-500 text-white font-semibold py-2.5 px-4 rounded-xl transition-all shadow-[0_0_12px_rgba(168,85,247,0.3)] active:scale-95 text-sm"
+                onClick={() => {
+                  if (!deptNum.trim() || rentPrice === '') {
+                    showNotification('warning', 'Campos vacíos', 'Por favor, complete todos los campos.');
+                    return;
+                  }
+
+                  const datos: Departamento = {
+                    tam: Number(arraySize),
+                    numero: deptNum.trim(),
+                    precio: Number(rentPrice),
+                    extension: 0,
+                    inquilino: '',
+                    ubicacion: '',
+                  };
+
+                  // Envío de PUT
+                  fetchRequest(path + `/${encodeURIComponent(deptNum.trim())}`, { method: "PUT", body: datos })
+                    .then(() => {
+                      showNotification('success', 'Éxito', `Precio del departamento ${deptNum.trim()} actualizado.`);
+                      resetValues(setDeptNum, setRentPrice, setTenantName, setDeptAddress, setDeptExt);
+                    })
+                    .catch((err: any) => {
+                      showNotification('error', 'Error al modificar', err.message || 'No se pudo actualizar el precio.');
+                    });
+                }}
+              >
                 Actualizar Precio
               </button>
             </div>
           )}
 
-          {/* Listar Todos los Departamentos */}
+          {/* VISTA: Listar Todos */}
           {selectedAction === 'listarTodos' && (
             <div className="flex flex-col gap-3 w-full">
               <h3 className="text-lg font-bold text-purple-300 flex items-center gap-2 border-b border-purple-500/20 pb-2">
-                <ListFilter className="w-5 h-5 text-purple-400" /> Lista General de Departamentos
+                <ListFilter className="w-5 h-5 text-purple-400" /> Lista General de Departamentos (Por Extensión)
               </h3>
               <div className="overflow-x-auto">
-                <table className="w-full text-left text-sm text-slate-300">
-                  <thead className="text-xs uppercase bg-[#0a0d18] text-purple-400">
-                    <tr>
-                      <th className="p-2.5 rounded-l-lg">Posición</th>
-                      <th className="p-2.5">Nº Depto</th>
-                      <th className="p-2.5">Inquilino</th>
-                      <th className="p-2.5 rounded-r-lg">Precio Renta</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-purple-500/10">
-                    <tr className="hover:bg-purple-500/5">
-                      <td className="p-2.5 font-mono text-purple-400">[0]</td>
-                      <td className="p-2.5">101</td>
-                      <td className="p-2.5 font-medium text-white">Carlos Mendoza</td>
-                      <td className="p-2.5">$450</td>
-                    </tr>
-                    <tr className="hover:bg-purple-500/5">
-                      <td className="p-2.5 font-mono text-purple-400">[1]</td>
-                      <td className="p-2.5">102</td>
-                      <td className="p-2.5 font-medium text-white">Ana Gutiérrez</td>
-                      <td className="p-2.5">$500</td>
-                    </tr>
-                  </tbody>
-                </table>
+                <ListDepartments allDepartments={true} departmentFound={null} />
               </div>
             </div>
           )}
 
-          {/* Listar Departamento Determinado */}
+          {/* VISTA: Listar Uno */}
           {selectedAction === 'listarUno' && (
             <div className="flex flex-col gap-4 max-w-md mx-auto w-full">
               <h3 className="text-lg font-bold text-purple-300 flex items-center gap-2 border-b border-purple-500/20 pb-2">
                 <Search className="w-5 h-5 text-purple-400" /> Buscar Departamento Determinado
               </h3>
-              <div className="flex gap-2">
-                <input
-                  type="text"
-                  placeholder="Ingrese Nº Depto (Eje: 101)"
-                  className="flex-1 bg-[#0a0d18] border border-purple-500/30 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-purple-400"
-                />
-                <button className="bg-purple-600 hover:bg-purple-500 text-white font-semibold px-4 py-2 rounded-xl text-sm transition-all">
+              <div className="flex gap-2 items-end">
+                <div className="flex-1">
+                  <FormInput
+                    label="Ingrese Nº Depto:"
+                    value={searchNum}
+                    onChange={setSearchNum}
+                    placeholder="Ingrese Nº Depto (Ej: 101)"
+                    colorScheme="purple"
+                  />
+                </div>
+                <button
+                  className="bg-purple-600 hover:bg-purple-500 text-white font-semibold px-4 py-2 rounded-xl text-sm transition-all h-[38px] flex items-center justify-center active:scale-95"
+                  onClick={() => {
+                    if (!searchNum.trim()) {
+                      showNotification('warning', 'Campo vacío', 'Por favor, ingrese el número de departamento a buscar.');
+                      return;
+                    }
+
+                    // Envío de GET
+                    apiRequest<Departamento | null>(path + `/${encodeURIComponent(searchNum.trim())}`, { method: "GET" })
+                      .then((res) => {
+                        if (res) {
+                          setDepartmentFound(res);
+                          showNotification('success', 'Búsqueda Exitosa', `Se encontró el departamento ${res.numero}.`);
+                        } else {
+                          setDepartmentFound(null);
+                          showNotification('info', 'No Encontrado', `No se encontró ningún departamento.`);
+                        }
+                      })
+                      .catch((err: any) => {
+                        console.error(err);
+                        setDepartmentFound(null);
+                        showNotification('error', 'Error de Búsqueda', err.message || 'Error al buscar el departamento.');
+                      });
+                  }}
+                >
                   Buscar
                 </button>
               </div>
+              <ListDepartments allDepartments={false} departmentFound={departmentFound} />
             </div>
           )}
 
         </div>
       </main>
 
-      {/* Botón Atrás */}
-      <footer className="flex justify-end w-full max-w-4xl mx-auto mt-2">
-        <button
-          onClick={onBack}
-          className="group flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-semibold hover:from-blue-500 hover:to-indigo-500 transition-all duration-200 shadow-lg hover:shadow-blue-500/25 active:scale-95"
-        >
-          <ArrowLeft className="w-5 h-5 transition-transform duration-200 group-hover:-translate-x-1" />
-          Atrás
-        </button>
-      </footer>
+      {/* Componente Modular: Botón de Salida */}
+      <PanelFooter onBack={onBack} label="Salir" colorScheme="purple" />
     </div>
   );
 };
