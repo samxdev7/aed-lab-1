@@ -1,122 +1,107 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import heroImg from './assets/hero.png'
-import './App.css'
+import { useState } from 'react';
+import { PresentationPanel } from './PresentationPanel';
+import { ArrayMenuPanel } from './ArrayMenuPanel';
+import { OrderedArrayPanel } from './OrderedArrayPanel';
+import { DisorderedArrayPanel } from './DisorderedArrayPanel';
+import { Exercise1Panel } from './Exercise1Panel';
+import { Exercise2Panel } from './Exercise2Panel';
+import { Exercise3Panel } from './Exercise3Panel';
+import { Exercise4Panel } from './Exercise4Panel';
+import { Exercise5Panel } from './Exercise5Panel';
+import { Exercise6Panel } from './Exercise6Panel';
+import { NotificationProvider } from './NotificationContext';
 
-function App() {
-  const [count, setCount] = useState(0)
+export default function App() {
+  const [currentScreen, setCurrentScreen] = useState<
+    'presentation' | 'menu' | 'ordered' | 'disordered' | 'exercise1' | 'exercise2' | 'exercise3' | 'exercise4' | 'exercise5' | 'exercise6'
+  >('presentation');
 
   return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.tsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
+    <NotificationProvider>
+      <main className="w-full min-h-screen">
+      {currentScreen === 'presentation' && (
+        <PresentationPanel onNext={() => setCurrentScreen('menu')} />
+      )}
 
-      <div className="ticks"></div>
+      {currentScreen === 'menu' && (
+        <ArrayMenuPanel
+          onBack={() => setCurrentScreen('presentation')}
+          onSelectOrdered={() => setCurrentScreen('ordered')}
+          onSelectUnordered={() => setCurrentScreen('disordered')}
+        />
+      )}
 
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
+      {currentScreen === 'ordered' && (
+        <OrderedArrayPanel
+          onBack={() => setCurrentScreen('menu')}
+          onSelectExercise={(id) => {
+            if (id === 4) {
+              setCurrentScreen('exercise4');
+            } else if (id === 5) {
+              setCurrentScreen('exercise5');
+            } else if (id === 6) {
+              setCurrentScreen('exercise6');
+            } else {
+              console.log(`Ejercicio Ordenado seleccionado: ${id}`);
+            }
+          }}
+        />
+      )}
 
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
-  )
+      {currentScreen === 'disordered' && (
+        <DisorderedArrayPanel
+          onBack={() => setCurrentScreen('menu')}
+          onSelectExercise={(id) => {
+            if(id === 1){
+              setCurrentScreen('exercise1');
+            } else if(id === 2){
+              setCurrentScreen('exercise2');
+            } else if(id === 3){
+              setCurrentScreen('exercise3');
+            } else {
+              console.log(`Ejercicio Desordenado seleccionado: ${id}`)
+            }
+          }}
+        />
+      )}
+
+      {currentScreen === 'exercise1' && (
+        <Exercise1Panel
+          onBack={() => setCurrentScreen('disordered')}
+        />
+      )}
+
+      {currentScreen === 'exercise2' && (
+        <Exercise2Panel
+          onBack={() => setCurrentScreen('disordered')}
+        />
+      )}
+
+      {currentScreen === 'exercise3' && (
+        <Exercise3Panel
+          onBack={() => setCurrentScreen('disordered')}
+        />
+      )}
+
+      {currentScreen === 'exercise4' && (
+        <Exercise4Panel
+          onBack={() => setCurrentScreen('ordered')}
+        />
+      )}
+
+      {currentScreen === 'exercise5' && (
+        <Exercise5Panel
+          onBack={() => setCurrentScreen('ordered')}
+        />
+      )}
+
+      {currentScreen === 'exercise6' && (
+        <Exercise6Panel
+          onBack={() => setCurrentScreen('ordered')}
+        />
+      )}
+
+      </main>
+    </NotificationProvider>
+  );
 }
-
-export default App
