@@ -45,17 +45,23 @@ public class Ejercicio6 {
         return -(i + 1); // No encontrado, posición de inserción es i
     }
 
-    public void agregarVendedor(VendedorDto vendedor) {
+    public boolean agregarVendedor(VendedorDto vendedor) {
+        if (vendedor == null) {
+            return false;
+        }
+        String vendedorNombre = vendedor.getNombre();
+        if (vendedorNombre == null || vendedorNombre.trim().isEmpty()) {
+            return false;
+        }
         if (n >= tam - 1) {
-            return;
+            return false;
         }
 
-        String vendedorNombre = vendedor.getNombre();
-        int pos = buscarVendedor(vendedorNombre);
+        int pos = buscarVendedor(vendedorNombre.trim());
 
         if (pos >= 0) {
             // Ya registrado
-            return;
+            return false;
         }
 
         int insertPos = -pos - 1;
@@ -66,21 +72,33 @@ public class Ejercicio6 {
             totalVentas[i] = totalVentas[i-1];
         }
 
-        nombre[insertPos] = vendedorNombre;
+        nombre[insertPos] = vendedorNombre.trim();
         totalVentas[insertPos] = vendedor.getTotalVentas();
+        return true;
     }
 
-    public void modificarVentas(VendedorDto vendedor) {
-        int pos = buscarVendedor(vendedor.getNombre());
+    public boolean modificarVentas(VendedorDto vendedor) {
+        if (vendedor == null) {
+            return false;
+        }
+        String vendedorNombre = vendedor.getNombre();
+        if (vendedorNombre == null || vendedorNombre.trim().isEmpty()) {
+            return false;
+        }
+        int pos = buscarVendedor(vendedorNombre.trim());
         if (pos < 0) {
-            return; // No existe
+            return false; // No existe
         }
         
         totalVentas[pos] = vendedor.getTotalVentas();
+        return true;
     }
 
     public VendedorDto imprimirDatosDeUnVendedor(String vendedorNombre) {
-        int pos = buscarVendedor(vendedorNombre);
+        if (vendedorNombre == null || vendedorNombre.trim().isEmpty()) {
+            return null;
+        }
+        int pos = buscarVendedor(vendedorNombre.trim());
 
         if (pos < 0) {
             return null;
