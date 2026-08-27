@@ -52,6 +52,24 @@ public class Ejercicio5 {
         }
         return -1;
     }
+    
+    /**
+     * Busca secuencialmente un departamento por su extension.
+     * @param extensionDepto Extension de departamento a consultar.
+     * @return El índice si se encuentra, o -(i + 1) si no.
+     */
+    private int buscarPorExtension(float extensionDepto) {
+        int i = 0;
+        // Búsqueda lineal hasta encontrar la posición alfabética adecuada
+        while (i <= n && extension[i] < extensionDepto) {
+            i++;
+        }
+        // Si el elemento coincide exactamente
+        if (i <= n && extension[i] == extensionDepto) {
+            return i; // Encontrado
+        }
+        return -(i + 1); // No encontrado, posición de inserción es i
+    }
 
     /**
      * Registra/renta un departamento colocándolo ordenado por extensión (superficie).
@@ -64,22 +82,20 @@ public class Ejercicio5 {
             return false;
         }
 
-        // Evitar duplicados por número de apartamento (identificador único)
-        if (buscarPorNumero(depto.getNumero()) >= 0) {
+        // Se realiza la búsqueda secuencial
+        int pos = buscarPorExtension(depto.extension());
+        
+        // Si pos >=, el elemento existe
+        if (pos >= 0) {
             return false;
         }
-
-        // Buscar posición de inserción para mantener orden ascendente por extensión
-        float ext = depto.getExtension();
-        int insertPos = 0;
-        while (insertPos <= n && extension[insertPos] < ext) {
-            insertPos++;
-        }
-
+        
+        // Ajustar posición de inserción para mantener orden ascendente por extensión
+        pos = -pos - 1;
         n++; // Incrementamos el límite lógico
         
         // Desplazamiento a la derecha de los elementos para abrir el espacio
-        for (int i = n; i >= insertPos + 1; i--) {
+        for (int i = n; i >= pos + 1; i--) {
             ubicacion[i] = ubicacion[i-1];
             extension[i] = extension[i-1];
             precio[i] = precio[i-1];
@@ -88,11 +104,11 @@ public class Ejercicio5 {
         }
 
         // Guardamos en la posición ordenada
-        ubicacion[insertPos] = depto.ubicacion();
-        extension[insertPos] = depto.getExtension();
-        precio[insertPos] = depto.getPrecio();
-        numero[insertPos] = depto.getNumero();
-        inquilino[insertPos] = depto.getInquilino();
+        ubicacion[pos] = depto.ubicacion();
+        extension[pos] = depto.getExtension();
+        precio[pos] = depto.getPrecio();
+        numero[pos] = depto.getNumero();
+        inquilino[pos] = depto.getInquilino();
         return true;
     }
 

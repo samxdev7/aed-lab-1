@@ -120,21 +120,6 @@ public class Ejercicio3 {
         
         return new EmpleadoDesordenadoDto(tam, nombre[i], esMujer[i], edad[i]);
     }
-    
-    /**
-     * Obtiene todos los empleados registrados.
-     * Retorna un arreglo del tamaño lógico exacto para evitar elementos nulos al serializar a JSON.
-     * @return Arreglo de DTOs.
-     */
-    public EmpleadoDesordenadoDto[] imprimirTodosLosDatos() {
-        EmpleadoDesordenadoDto[] listaEmpleados = new EmpleadoDesordenadoDto[n+1];
-
-        for (int i = 0; i <= n; i++) {
-            listaEmpleados[i] = new EmpleadoDesordenadoDto(tam, nombre[i], esMujer[i], edad[i]);
-        }
-
-        return listaEmpleados;
-    }
 
     /**
      * Obtiene únicamente los empleados registrados de sexo masculino (varones).
