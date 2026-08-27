@@ -46,21 +46,14 @@ public class Ejercicio6 {
     }
 
     public boolean agregarVendedor(VendedorDto vendedor) {
-        if (vendedor == null) {
-            return false;
-        }
-        String vendedorNombre = vendedor.getNombre();
-        if (vendedorNombre == null || vendedorNombre.trim().isEmpty()) {
-            return false;
-        }
         if (n >= tam - 1) {
             return false;
         }
 
-        int pos = buscarVendedor(vendedorNombre.trim());
+        int pos = buscarVendedor(vendedor.getNombre());
 
+        // Ya registrado
         if (pos >= 0) {
-            // Ya registrado
             return false;
         }
 
@@ -72,20 +65,13 @@ public class Ejercicio6 {
             totalVentas[i] = totalVentas[i-1];
         }
 
-        nombre[insertPos] = vendedorNombre.trim();
+        nombre[insertPos] = vendedor.getNombre();
         totalVentas[insertPos] = vendedor.getTotalVentas();
         return true;
     }
 
-    public boolean modificarVentas(VendedorDto vendedor) {
-        if (vendedor == null) {
-            return false;
-        }
-        String vendedorNombre = vendedor.getNombre();
-        if (vendedorNombre == null || vendedorNombre.trim().isEmpty()) {
-            return false;
-        }
-        int pos = buscarVendedor(vendedorNombre.trim());
+    public boolean modificarVentas(VendedorDto vendedor) {        
+        int pos = buscarVendedor(vendedor.getNombre());
         if (pos < 0) {
             return false; // No existe
         }
@@ -95,11 +81,7 @@ public class Ejercicio6 {
     }
 
     public VendedorDto imprimirDatosDeUnVendedor(String vendedorNombre) {
-        if (vendedorNombre == null || vendedorNombre.trim().isEmpty()) {
-            return null;
-        }
-        int pos = buscarVendedor(vendedorNombre.trim());
-
+        int pos = buscarVendedor(vendedorNombre);
         if (pos < 0) {
             return null;
         }
