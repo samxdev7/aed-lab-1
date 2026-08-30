@@ -25,7 +25,7 @@ public class Ordenamiento {
         }
 
         @Override
-        public int[] buscarElemento(AlgoritmosDto entradas) { return null; }
+        public int buscarElemento(AlgoritmosDto entradas) { return -1; }
     }
     
     public class BurbujaSenal extends Algoritmo {
@@ -34,7 +34,7 @@ public class Ordenamiento {
         public int[] ordenar(AlgoritmosDto entradas) { return null; }
 
         @Override
-        public int[] buscarElemento(AlgoritmosDto entradas) { return null; }
+        public int buscarElemento(AlgoritmosDto entradas) { return -1; }
     }
     
     public class Baraja extends Algoritmo {
@@ -43,7 +43,7 @@ public class Ordenamiento {
         public int[] ordenar(AlgoritmosDto entradas) { return null; }
 
         @Override
-        public int[] buscarElemento(AlgoritmosDto entradas) { return null; }
+        public int buscarElemento(AlgoritmosDto entradas) { return -1; }
     }
     
     public class Sacudida extends Algoritmo {
@@ -52,7 +52,7 @@ public class Ordenamiento {
         public int[] ordenar(AlgoritmosDto entradas) { return null; }
 
         @Override
-        public int[] buscarElemento(AlgoritmosDto entradas) { return null; }
+        public int buscarElemento(AlgoritmosDto entradas) { return -1; }
     }
     
     public class Seleccion extends Algoritmo {
@@ -61,7 +61,7 @@ public class Ordenamiento {
         public int[] ordenar(AlgoritmosDto entradas) { return null; }
 
         @Override
-        public int[] buscarElemento(AlgoritmosDto entradas) { return null; }
+        public int buscarElemento(AlgoritmosDto entradas) { return -1; }
     }
     
     public class Shell extends Algoritmo {
@@ -70,6 +70,24 @@ public class Ordenamiento {
         public int[] ordenar(AlgoritmosDto entradas) { return null; }
 
         @Override
-        public int[] buscarElemento(AlgoritmosDto entradas) { return null; }
+        public int buscarElemento(AlgoritmosDto entradas) { return -1; }
+    }
+    
+    public int[] ejecutar(AlgoritmosDto entradas) {
+        int[] arregloOrdenado;
+        Algoritmo algoritmoOrdenacion;
+        
+        switch (entradas.opcion()) {
+            case 1 -> algoritmoOrdenacion = new Burbuja();
+            case 2 -> algoritmoOrdenacion = new BurbujaSenal();
+            case 3 -> algoritmoOrdenacion = new Baraja();
+            case 4 -> algoritmoOrdenacion = new Sacudida();
+            case 5 -> algoritmoOrdenacion = new Seleccion();
+            case 6 -> algoritmoOrdenacion = new Shell();
+            default -> algoritmoOrdenacion = null;
+        }
+        
+        arregloOrdenado = algoritmoOrdenacion.ordenar(entradas);
+        return arregloOrdenado;
     }
 }

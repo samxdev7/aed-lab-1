@@ -1,16 +1,13 @@
 package uni.AEDLab1.models;
 
-public record AlgoritmosDto(int tam, int[] elementos, int buscar)
-{
-    public int getTam() {
-        return tam;
-    }
-    
-    public int[] getElementos() {
-        return elementos;
-    }
-    
-    public int getBuscar() {
-        return buscar;
-    }
-}
+/** Opciones para int opcion:
+ *  1. Burbuja
+ *  2. BurbujaConSeñal
+ *  3. Baraja
+ *  4. Sacudida
+ *  5. Seleccion
+ *  6. Shell
+ *  7. Búsqueda Binaria
+ */
+
+public record AlgoritmosDto(int tam, int opcion, int[] elementos, int buscar) {}

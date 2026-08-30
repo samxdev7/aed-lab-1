@@ -8,5 +8,5 @@ public class BusquedaBinaria extends Algoritmo {
     public int[] ordenar(AlgoritmosDto entradas) { return null; }
 
     @Override
-    public int[] buscarElemento(AlgoritmosDto entradas) { return null; }
+    public int buscarElemento(AlgoritmosDto entradas) { return -1; }
 }
