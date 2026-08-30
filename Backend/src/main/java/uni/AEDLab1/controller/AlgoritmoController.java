@@ -42,7 +42,11 @@ public class AlgoritmoController {
      */
     @GetMapping("/algoritmo/busqueda")
     public ResponseEntity<?> buscarElemento(@RequestBody AlgoritmosDto elementos) {
-        int indiceElementoEncontrado = servicioBusquedaBinaria.buscarElemento(elementos);
+        int[] arregloOrdenado = servicioOrdenamiento.ejecutar(elementos);
+        AlgoritmosDto elementosConArregloOrdenado = new AlgoritmosDto(
+            elementos.tam(), 6, arregloOrdenado, elementos.buscar());
+        
+        int indiceElementoEncontrado = servicioBusquedaBinaria.buscarElemento(elementosConArregloOrdenado);
         
         // Si no encuentra el elemento solicitado, devuelve -1
         if (indiceElementoEncontrado == -1) {
