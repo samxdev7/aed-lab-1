@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Circle } from 'lucide-react';
+import { Layers } from 'lucide-react';
 import { API_KEY, fetchRequest } from './HTTPMethods';
 import { useNotification } from './NotificationContext';
 import { PanelHeader, ArraySizeConfig, PanelFooter } from './CommonComponents';
@@ -82,7 +82,7 @@ export const InsertionSortPanel: React.FC<InsertionSortPanelProps> = ({ onBack }
       <PanelHeader
         category="MÉTODOS DE ORDENACIÓN"
         title="Método Baraja"
-        subtitle="Clasificación por inserción"
+        subtitle="Insertion Sort Algorithm"
         colorScheme="purple"
       />
 
@@ -114,7 +114,7 @@ export const InsertionSortPanel: React.FC<InsertionSortPanelProps> = ({ onBack }
               disabled={loading}
               className="bg-purple-600 hover:bg-purple-500 disabled:opacity-50 text-white font-semibold px-6 py-3 rounded-xl transition-all shadow-[0_0_15px_rgba(168,85,247,0.3)] active:scale-95 flex items-center gap-2 text-sm shrink-0"
             >
-              <Circle className="w-4 h-4 fill-current" />
+              <Layers className="w-4 h-4 fill-current" />
               {loading ? 'Ordenando...' : 'Ordenar'}
             </button>
           </div>
@@ -125,7 +125,7 @@ export const InsertionSortPanel: React.FC<InsertionSortPanelProps> = ({ onBack }
           {/* Arreglo Desordenado */}
           <div className="bg-[#11162b] border border-purple-500/30 rounded-2xl p-6 flex flex-col items-center justify-center min-h-[160px]">
             <h3 className="text-sm font-bold text-slate-300 mb-4 flex items-center gap-2">
-              <Circle className="w-4 h-4 text-purple-400 fill-current" /> Array Desordenado
+              <Layers className="w-4 h-4 text-purple-400 fill-current" /> Array Desordenado
             </h3>
             <div className="flex flex-wrap gap-2 justify-center">
               {originalArray.length > 0 ? (
@@ -146,7 +146,7 @@ export const InsertionSortPanel: React.FC<InsertionSortPanelProps> = ({ onBack }
           {/* Arreglo Ordenado */}
           <div className="bg-[#11162b] border border-purple-500/30 rounded-2xl p-6 flex flex-col items-center justify-center min-h-[160px]">
             <h3 className="text-sm font-bold text-slate-300 mb-4 flex items-center gap-2">
-              <Circle className="w-4 h-4 text-purple-400 fill-current" /> Array Ordenado
+              <Layers className="w-4 h-4 text-purple-400 fill-current" /> Array Ordenado
             </h3>
             {sortedArray ? (
               <div className="flex flex-wrap gap-2 justify-center">
