@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { PanelHeader, ArraySizeConfig, PanelFooter, FormInput } from './CommonComponents';
+import { PanelHeader, ArraySizeConfig, PanelFooter } from './CommonComponents';
 import { useNotification } from './NotificationContext';
 import { API_KEY, fetchRequest } from './HTTPMethods';
-import { Zap } from 'lucide-react';
+import { Play, Repeat } from 'lucide-react';
 
 interface ShakerSortPanelProps {
   onBack: () => void;
@@ -18,12 +18,12 @@ export const ShakerSortPanel: React.FC<ShakerSortPanelProps> = ({ onBack }) => {
 
   const [elementsInput, setElementsInput] = useState<string>('5, 6, 7, 9, 1, 23');
   const [originalArray, setOriginalArray] = useState<number[]>([5, 6, 7, 9, 1, 23]);
-  const [sortedArray, setSortedArray] = useState<number[]>([]);
+  const [sortedArray, setSortedArray] = useState<number[] | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
 
   const handleSort = () => {
     if (!elementsInput.trim()) {
-      showNotification('warning', 'Campos vacíos', 'Ingrese los elementos separados por comas.');
+      showNotification('warning', 'Entrada vacía', 'Por favor ingrese números separados por comas.');
       return;
     }
 
@@ -34,13 +34,13 @@ export const ShakerSortPanel: React.FC<ShakerSortPanelProps> = ({ onBack }) => {
       .map(Number);
 
     if (numbers.some(isNaN)) {
-      showNotification('error', 'Formato inválido', 'Asegúrese de ingresar solo números separados por comas.');
+      showNotification('error', 'Formato inválido', 'Asegúrese de ingresar únicamente números válidos.');
       return;
     }
 
     const maxTam = Number(arraySize);
     if (numbers.length > maxTam) {
-      showNotification('error', 'Límite superado', `Ha ingresado ${numbers.length} elementos, pero el tamaño máximo es ${maxTam}.`);
+      showNotification('warning', 'Límite excedido', `El arreglo contiene más elementos (${numbers.length}) que el tamaño definido (${maxTam}).`);
       return;
     }
 
@@ -69,6 +69,7 @@ export const ShakerSortPanel: React.FC<ShakerSortPanelProps> = ({ onBack }) => {
 
   return (
     <div className="min-h-screen bg-[#0a0d18] text-white flex flex-col justify-between p-8 font-sans">
+      {/* Header */}
       <PanelHeader
         category="Métodos de Ordenación"
         title="Método de Ordenación Sacudida"
@@ -77,6 +78,7 @@ export const ShakerSortPanel: React.FC<ShakerSortPanelProps> = ({ onBack }) => {
       />
 
       <main className="max-w-4xl mx-auto w-full flex flex-col gap-6 my-auto py-4">
+        {/* Tamaño del Arreglo */}
         <ArraySizeConfig
           arraySize={arraySize}
           setArraySize={setArraySize}
@@ -85,65 +87,77 @@ export const ShakerSortPanel: React.FC<ShakerSortPanelProps> = ({ onBack }) => {
           colorScheme="purple"
         />
 
-        <div className="bg-[#11162b] border border-purple-500/30 rounded-2xl p-6 flex flex-col md:flex-row items-end gap-4 shadow-lg">
-          <div className="flex-1 w-full">
-            <FormInput
-              label="Elementos (separados por comas):"
+        {/* Input y Acción */}
+        <div className="bg-[#11162b] border border-purple-500/30 rounded-2xl p-6">
+          <label className="block text-xs text-slate-400 mb-2 text-center font-medium">
+            Elementos (separados por comas):
+          </label>
+          <div className="flex gap-4 items-center">
+            <input
+              type="text"
               value={elementsInput}
-              onChange={setElementsInput}
+              onChange={(e) => setElementsInput(e.target.value)}
               placeholder="Ej: 5, 6, 7, 9, 1, 23"
-              colorScheme="purple"
+              className="flex-1 bg-[#0a0d18] border border-purple-500/30 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-purple-400 transition-colors"
             />
+            <button
+              onClick={handleSort}
+              disabled={loading}
+              className="bg-purple-600 hover:bg-purple-500 disabled:opacity-50 text-white font-semibold px-6 py-3 rounded-xl transition-all shadow-[0_0_15px_rgba(168,85,247,0.3)] active:scale-95 flex items-center gap-2 text-sm shrink-0"
+            >
+              <Play className="w-4 h-4 fill-current" />
+              {loading ? 'Ordenando...' : 'Ordenar'}
+            </button>
           </div>
-          <button
-            onClick={handleSort}
-            disabled={loading}
-            className="w-full md:w-auto bg-purple-600 hover:bg-purple-500 text-white font-semibold px-6 py-2.5 rounded-xl transition-all shadow-[0_0_12px_rgba(168,85,247,0.3)] active:scale-95 text-sm flex items-center justify-center gap-2 h-[42px] shrink-0 disabled:opacity-50"
-          >
-            <Zap className="w-4 h-4 fill-current" />
-            {loading ? 'Ordenando...' : 'Ordenar'}
-          </button>
         </div>
 
+        {/* Visualización de Resultados */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="bg-[#11162b] border border-purple-500/30 rounded-2xl p-6 flex flex-col items-center min-h-[160px] justify-between shadow-lg">
-            <h3 className="text-lg font-bold text-slate-200 mb-4">Array Desordenado</h3>
-            <div className="flex flex-wrap items-center justify-center gap-3 w-full my-auto">
+          {/* Arreglo Desordenado */}
+          <div className="bg-[#11162b] border border-purple-500/30 rounded-2xl p-6 flex flex-col items-center justify-center min-h-[160px]">
+            <h3 className="text-sm font-bold text-slate-300 mb-4 flex items-center gap-2">
+              <Repeat className="w-4 h-4 text-purple-400" /> Array Desordenado
+            </h3>
+            <div className="flex flex-wrap gap-2 justify-center">
               {originalArray.length > 0 ? (
                 originalArray.map((num, idx) => (
-                  <span
+                  <div
                     key={idx}
-                    className="text-2xl font-bold font-mono text-white bg-purple-950/40 border border-purple-500/30 px-4 py-2 rounded-xl shadow-inner"
+                    className="w-12 h-12 rounded-xl bg-purple-900/30 border border-purple-500/40 flex items-center justify-center font-bold text-lg text-purple-200 shadow-inner"
                   >
                     {num}
-                  </span>
+                  </div>
                 ))
               ) : (
-                <span className="text-slate-500 text-sm">Esperando datos...</span>
+                <span className="text-xs text-slate-500">Sin elementos</span>
               )}
             </div>
           </div>
 
-          <div className="bg-[#11162b] border border-purple-500/30 rounded-2xl p-6 flex flex-col items-center min-h-[160px] justify-between shadow-lg">
-            <h3 className="text-lg font-bold text-slate-200 mb-4">Array Ordenado</h3>
-            <div className="flex flex-wrap items-center justify-center gap-3 w-full my-auto">
-              {sortedArray.length > 0 ? (
-                sortedArray.map((num, idx) => (
-                  <span
+          {/* Arreglo Ordenado */}
+          <div className="bg-[#11162b] border border-purple-500/30 rounded-2xl p-6 flex flex-col items-center justify-center min-h-[160px]">
+            <h3 className="text-sm font-bold text-slate-300 mb-4 flex items-center gap-2">
+              <Repeat className="w-4 h-4 text-purple-400" /> Array Ordenado
+            </h3>
+            {sortedArray ? (
+              <div className="flex flex-wrap gap-2 justify-center">
+                {sortedArray.map((num, idx) => (
+                  <div
                     key={idx}
-                    className="text-2xl font-bold font-mono text-purple-300 bg-purple-600/20 border border-purple-400/50 px-4 py-2 rounded-xl shadow-[0_0_10px_rgba(168,85,247,0.2)]"
+                    className="w-12 h-12 rounded-xl bg-purple-600/40 border border-purple-400 flex items-center justify-center font-bold text-lg text-white shadow-[0_0_10px_rgba(168,85,247,0.3)]"
                   >
                     {num}
-                  </span>
-                ))
-              ) : (
-                <span className="text-slate-500 text-sm">Haga clic en "Ordenar"</span>
-              )}
-            </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-xs text-slate-500">Haga clic en "Ordenar"</p>
+            )}
           </div>
         </div>
       </main>
 
+      {/* Botón Salir / Atrás */}
       <PanelFooter onBack={onBack} label="Atrás" colorScheme="purple" />
     </div>
   );
