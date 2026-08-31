@@ -5,7 +5,7 @@ import { SortingMethodsPanel } from './SortingMethodsPanel';
 import { BinarySearchPanel } from './BinarySearchPanel';
 import { ShakerSortPanel } from './ShakerSortPanel';
 import { BubbleSortPanel } from './BubbleSortPanel';
-import { Exercise3Panel } from './Exercise3Panel';
+import { BubbleSortSignalPanel } from './BubbleSortSignalPanel';
 import { Exercise4Panel } from './Exercise4Panel';
 import { Exercise5Panel } from './Exercise5Panel';
 import { Exercise6Panel } from './Exercise6Panel';
@@ -19,8 +19,8 @@ export default function App() {
     | 'binarySearch'
     | 'sacudida'
     | 'burbuja'
+    | 'burbujaSenal'
     | 'exercise2'
-    | 'exercise3'
     | 'exercise4'
     | 'exercise5'
     | 'exercise6'
@@ -49,6 +49,8 @@ export default function App() {
                 setCurrentScreen('sacudida');
               } else if (algorithmId === 'burbuja') {
                 setCurrentScreen('burbuja');
+              } else if (algorithmId === 'burbujaSenal' || algorithmId === 'burbuja-senal') {
+                setCurrentScreen('burbujaSenal');
               }
             }}
           />
@@ -66,6 +68,12 @@ export default function App() {
           />
         )}
 
+        {currentScreen === 'burbujaSenal' && (
+          <BubbleSortSignalPanel
+            onBack={() => setCurrentScreen('ordered')}
+          />
+        )}
+
         {currentScreen === 'binarySearch' && (
           <BinarySearchPanel
             onBack={() => setCurrentScreen('menu')}
@@ -74,12 +82,6 @@ export default function App() {
 
         {currentScreen === 'exercise2' && (
           <BubbleSortPanel
-            onBack={() => setCurrentScreen('binarySearch')}
-          />
-        )}
-
-        {currentScreen === 'exercise3' && (
-          <Exercise3Panel
             onBack={() => setCurrentScreen('binarySearch')}
           />
         )}
