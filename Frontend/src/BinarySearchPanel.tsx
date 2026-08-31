@@ -12,7 +12,6 @@ export const BinarySearchPanel: React.FC<BinarySearchPanelProps> = ({ onBack }) 
   const [arregloGuardado, setArregloGuardado] = useState<number[]>([]);
 
   const [objetivo, setObjetivo] = useState<string>('');
-  const [objetivoGuardado, setObjetivoGuardado] = useState<number | null>(null);
   
   const [resultado, setResultado] = useState<string | null>(null);
   const [cargando, setCargando] = useState<boolean>(false);
@@ -22,7 +21,7 @@ export const BinarySearchPanel: React.FC<BinarySearchPanelProps> = ({ onBack }) 
   const handleGuardarTamano = () => {
     const num = parseInt(tamano);
     if (isNaN(num) || num <= 0) {
-      setError('Por favor ingresa un tamaño válido mayor a 0');
+      setError('Por favor ingresa un número entero válido y mayor a 0 para el tamaño.');
       return;
     }
     setError(null);
@@ -31,24 +30,29 @@ export const BinarySearchPanel: React.FC<BinarySearchPanelProps> = ({ onBack }) 
   // Guardar Elementos y Ordenar
   const handleGuardarElementos = () => {
     const tamNum = parseInt(tamano);
-    if (!tamNum) {
-      setError('Primero debes ingresar y guardar el Tamaño del Arreglo');
+    if (!tamNum || isNaN(tamNum) || tamNum <= 0) {
+      setError('Primero debes ingresar y guardar un tamaño válido mayor a 0.');
       return;
     }
 
-    const valores = elementosInput
-      .split(',')
-      .map((item) => item.trim())
-      .filter((item) => item !== '')
-      .map(Number);
-
-    if (valores.some(isNaN)) {
-      setError('Ingresa solo números separados por comas (Ej: 1, 3, 7, 9)');
+    if (!elementosInput.trim()) {
+      setError('El campo de elementos no puede estar vacío.');
       return;
     }
+
+    const items = elementosInput.split(',').map((item) => item.trim()).filter((item) => item !== '');
+
+    // Validar que todos los elementos sean valores numéricos
+    const hayInvalidos = items.some((item) => isNaN(Number(item)));
+    if (hayInvalidos) {
+      setError('Has ingresado un valor no numérico. Solo se permiten números separados por comas.');
+      return;
+    }
+
+    const valores = items.map(Number);
 
     if (valores.length !== tamNum) {
-      setError(`Debes ingresar exactamente ${tamNum} elementos separados por coma`);
+      setError(`Se esperaban ${tamNum} elementos según el tamaño ingresado, pero ingresaste ${valores.length}.`);
       return;
     }
 
@@ -57,27 +61,21 @@ export const BinarySearchPanel: React.FC<BinarySearchPanelProps> = ({ onBack }) 
     setError(null);
   };
 
-  // Guardar Elemento a Buscar (X)
-  const handleGuardarObjetivo = () => {
-    const num = parseFloat(objetivo);
-    if (isNaN(num)) {
-      setError('Ingresa un número válido para el Elemento a Buscar (X)');
-      return;
-    }
-    setObjetivoGuardado(num);
-    setError(null);
-  };
-
   // Ejecutar Búsqueda contra Backend
   const handleBuscar = async () => {
     if (arregloGuardado.length === 0) {
-      setError('Primero debes ingresar y guardar los elementos del arreglo');
+      setError('Primero debes ingresar y guardar los elementos del arreglo.');
       return;
     }
     
-    const valBuscar = objetivoGuardado !== null ? objetivoGuardado : parseFloat(objetivo);
+    if (!objetivo.trim()) {
+      setError('Por favor ingresa el valor que deseas buscar.');
+      return;
+    }
+
+    const valBuscar = parseFloat(objetivo);
     if (isNaN(valBuscar)) {
-      setError('Ingresa y guarda un número válido en Elemento a Buscar');
+      setError('El elemento a buscar debe ser un número válido.');
       return;
     }
 
@@ -123,125 +121,118 @@ export const BinarySearchPanel: React.FC<BinarySearchPanelProps> = ({ onBack }) 
 
       {/* Mensaje de Error */}
       {error && (
-        <div className="max-w-3xl mx-auto w-full bg-red-500/10 border border-red-500/40 text-red-400 p-3 rounded-xl text-center text-sm my-2">
+        <div className="max-w-3xl mx-auto w-full bg-red-500/10 border border-red-500/40 text-red-400 p-3.5 rounded-xl text-center text-sm font-medium my-2 animate-fade-in">
           {error}
         </div>
       )}
 
-      {/* Estructura Principal fiel al Boceto */}
+      {/* Estructura Principal */}
       <main className="max-w-5xl mx-auto w-full grid grid-cols-1 md:grid-cols-2 gap-8 my-auto py-4">
         
-        {/* SECCIÓN IZQUIERDA: Entradas + Array Ordenado debajo */}
+        {/* SECCIÓN IZQUIERDA: Entradas + Array Ordenado */}
         <div className="flex flex-col gap-6">
           
           {/* Inputs de Entrada */}
-          <div className="bg-[#11162b] p-6 rounded-2xl border border-cyan-500/30 flex flex-col gap-4">
+          <div className="bg-[#11162b] p-6 rounded-2xl border border-cyan-500/30 flex flex-col gap-5">
             {/* Tam. del Arreglo */}
-            <div className="flex items-center justify-between gap-4">
-              <label className="text-sm font-semibold text-slate-300 whitespace-nowrap">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <label className="text-base font-semibold text-slate-300 whitespace-nowrap">
                 Tam. del Arreglo
               </label>
-              <div className="flex gap-2 w-full max-w-[240px]">
+              <div className="flex gap-2 w-full sm:w-auto">
                 <input
                   type="number"
                   value={tamano}
                   onChange={(e) => setTamano(e.target.value)}
                   placeholder="Ej. 6"
-                  className="w-full bg-[#0a0d18] border border-cyan-500/30 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-cyan-400"
+                  className="w-full sm:w-64 bg-[#0a0d18] border border-cyan-500/30 rounded-xl px-4 py-3 text-lg text-white focus:outline-none focus:border-cyan-400 transition-colors"
                 />
                 <button
                   onClick={handleGuardarTamano}
-                  className="p-2.5 bg-cyan-500/20 text-cyan-400 hover:bg-cyan-500 hover:text-white rounded-xl transition-colors"
+                  className="p-3 bg-cyan-500/20 text-cyan-400 hover:bg-cyan-500 hover:text-white rounded-xl transition-colors shrink-0"
                   title="Guardar Tamaño"
                 >
-                  <Save className="w-5 h-5" />
+                  <Save className="w-6 h-6" />
                 </button>
               </div>
             </div>
 
             {/* Elementos */}
-            <div className="flex items-center justify-between gap-4">
-              <label className="text-sm font-semibold text-slate-300 whitespace-nowrap">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <label className="text-base font-semibold text-slate-300 whitespace-nowrap">
                 Elementos
               </label>
-              <div className="flex gap-2 w-full max-w-[240px]">
+              <div className="flex gap-2 w-full sm:w-auto">
                 <input
                   type="text"
                   value={elementosInput}
                   onChange={(e) => setElementosInput(e.target.value)}
                   placeholder="Ej. 1, 3, 7, 9, 12, 15"
-                  className="w-full bg-[#0a0d18] border border-cyan-500/30 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-cyan-400"
+                  className="w-full sm:w-64 bg-[#0a0d18] border border-cyan-500/30 rounded-xl px-4 py-3 text-lg text-white focus:outline-none focus:border-cyan-400 transition-colors"
                 />
                 <button
                   onClick={handleGuardarElementos}
-                  className="p-2.5 bg-cyan-500/20 text-cyan-400 hover:bg-cyan-500 hover:text-white rounded-xl transition-colors"
+                  className="p-3 bg-cyan-500/20 text-cyan-400 hover:bg-cyan-500 hover:text-white rounded-xl transition-colors shrink-0"
                   title="Guardar Elementos"
                 >
-                  <Save className="w-5 h-5" />
+                  <Save className="w-6 h-6" />
                 </button>
               </div>
             </div>
           </div>
 
-          {/* Caja Array Ordenado (Ubicada Abajo a la Izquierda como la pizarra) */}
-          <div className="bg-[#11162b] p-6 rounded-2xl border border-cyan-500/30 min-h-[160px] flex flex-col justify-between items-center text-center">
-            <div className="flex flex-wrap justify-center items-center gap-2 my-auto">
-              {arregloGuardado.length > 0 ? (
-                arregloGuardado.map((val, idx) => (
-                  <span
-                    key={idx}
-                    className="px-3.5 py-2 bg-cyan-500/10 border border-cyan-500/40 rounded-lg text-cyan-300 font-mono text-xl font-bold"
-                  >
-                    {val}
+          {/* Caja Array Ordenado con Scroll Horizontal */}
+          <div className="bg-[#11162b] p-6 rounded-2xl border border-cyan-500/30 min-h-[160px] flex flex-col justify-between">
+            <div className="w-full overflow-x-auto pb-3 custom-scrollbar">
+              <div className="flex items-center gap-2.5 min-w-max my-auto py-2 px-1">
+                {arregloGuardado.length > 0 ? (
+                  arregloGuardado.map((val, idx) => (
+                    <span
+                      key={idx}
+                      className="px-4 py-2.5 bg-cyan-500/10 border border-cyan-500/40 rounded-xl text-cyan-300 font-mono text-xl font-bold shrink-0"
+                    >
+                      {val}
+                    </span>
+                  ))
+                ) : (
+                  <span className="text-slate-500 italic text-base mx-auto">
+                    1 3 7 9 12 15
                   </span>
-                ))
-              ) : (
-                <span className="text-slate-500 italic text-sm">
-                  1 3 7 9 12 15
-                </span>
-              )}
+                )}
+              </div>
             </div>
-            <span className="text-sm font-bold text-slate-300 tracking-wider">
+            <span className="text-sm font-bold text-slate-300 tracking-wider text-center mt-2">
               Array Ordenado
             </span>
           </div>
 
         </div>
 
-        {/* SECCIÓN DERECHA: Búsqueda (X) + Caja de Resultado */}
+        {/* SECCIÓN DERECHA: Búsqueda (X) + Resultado */}
         <div className="flex flex-col gap-6 justify-between">
           
-          {/* Elemento a Buscar (X) + Guardar + Buscar */}
-          <div className="bg-[#11162b] p-6 rounded-2xl border border-cyan-500/30 flex flex-col gap-4">
-            <div className="flex items-center justify-between gap-2">
-              <label className="text-sm font-semibold text-slate-300 whitespace-nowrap">
-                Elemento a Buscar
-              </label>
-              
-              <div className="flex items-center gap-2">
-                <input
-                  type="number"
-                  value={objetivo}
-                  onChange={(e) => setObjetivo(e.target.value)}
-                  placeholder="X"
-                  className="w-16 bg-[#0a0d18] border border-cyan-500/30 rounded-xl px-3 py-2 text-center text-white focus:outline-none focus:border-cyan-400 font-bold"
-                />
-                <button
-                  onClick={handleGuardarObjetivo}
-                  className="p-2.5 bg-cyan-500/20 text-cyan-400 hover:bg-cyan-500 hover:text-white rounded-xl transition-colors"
-                  title="Guardar X"
-                >
-                  <Save className="w-5 h-5" />
-                </button>
-                <button
-                  onClick={handleBuscar}
-                  disabled={cargando}
-                  className="px-4 py-2.5 bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-semibold rounded-xl hover:from-cyan-400 hover:to-blue-500 transition-all flex items-center gap-2 disabled:opacity-50"
-                >
-                  <Search className="w-4 h-4" />
-                  {cargando ? '...' : 'Buscar'}
-                </button>
-              </div>
+          {/* Elemento a Buscar (X) + Buscar */}
+          <div className="bg-[#11162b] p-6 rounded-2xl border border-cyan-500/30 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <label className="text-base font-semibold text-slate-300 whitespace-nowrap">
+              Elemento a Buscar
+            </label>
+            
+            <div className="flex items-center gap-3 w-full sm:w-auto">
+              <input
+                type="number"
+                value={objetivo}
+                onChange={(e) => setObjetivo(e.target.value)}
+                placeholder="X"
+                className="w-full sm:w-28 bg-[#0a0d18] border border-cyan-500/30 rounded-xl px-4 py-3 text-center text-lg text-white focus:outline-none focus:border-cyan-400 font-bold transition-colors"
+              />
+              <button
+                onClick={handleBuscar}
+                disabled={cargando}
+                className="px-6 py-3 bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-semibold rounded-xl hover:from-cyan-400 hover:to-blue-500 transition-all flex items-center justify-center gap-2 disabled:opacity-50 text-base shrink-0"
+              >
+                <Search className="w-5 h-5" />
+                {cargando ? '...' : 'Buscar'}
+              </button>
             </div>
           </div>
 
@@ -249,7 +240,7 @@ export const BinarySearchPanel: React.FC<BinarySearchPanelProps> = ({ onBack }) 
           <div className="bg-[#11162b] p-8 rounded-2xl border border-cyan-500/30 flex-1 min-h-[180px] flex items-center justify-center text-center">
             {resultado ? (
               <div className="flex items-center gap-3 text-emerald-400 font-medium">
-                <CheckCircle2 className="w-7 h-7 shrink-0" />
+                <CheckCircle2 className="w-8 h-8 shrink-0" />
                 <p className="text-xl font-semibold">{resultado}</p>
               </div>
             ) : (
@@ -267,7 +258,7 @@ export const BinarySearchPanel: React.FC<BinarySearchPanelProps> = ({ onBack }) 
       <footer className="flex justify-end w-full max-w-5xl mx-auto">
         <button
           onClick={onBack}
-          className="group flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-semibold hover:from-blue-500 hover:to-indigo-500 transition-all duration-200 shadow-lg hover:shadow-blue-500/25 active:scale-95"
+          className="group flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-semibold hover:from-blue-500 hover:to-indigo-500 transition-all duration-200 shadow-lg hover:shadow-blue-500/25 active:scale-95 text-base"
         >
           <ArrowLeft className="w-5 h-5 transition-transform duration-200 group-hover:-translate-x-1" />
           Atrás
