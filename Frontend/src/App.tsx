@@ -8,7 +8,7 @@ import { BubbleSortPanel } from './BubbleSortPanel';
 import { BubbleSortSignalPanel } from './BubbleSortSignalPanel';
 import { InsertionSortPanel } from './InsertionSortPanel';
 import { SelectionSortPanel } from './SelectionSortPanel';
-import { Exercise6Panel } from './Exercise6Panel';
+import { ShellSortPanel } from './ShellSortPanel';
 import { NotificationProvider } from './NotificationContext';
 
 export default function App() {
@@ -21,7 +21,8 @@ export default function App() {
     | 'burbuja'
     | 'burbujaSenal'
     | 'baraja'
-    | 'seleccion' // <--- 1. Agregado aquí
+    | 'seleccion'
+    | 'shell'
     | 'exercise2'
     | 'exercise4'
     | 'exercise5'
@@ -59,8 +60,10 @@ export default function App() {
                 algorithmId === 'baraja-insercion'
               ) {
                 setCurrentScreen('baraja');
-              } else if (algorithmId === 'seleccion' || algorithmId === 'selection') { // <--- 2. Agregado aquí
+              } else if (algorithmId === 'seleccion' || algorithmId === 'selection') {
                 setCurrentScreen('seleccion');
+              } else if (algorithmId === 'shell') {
+                setCurrentScreen('shell');
               }
             }}
           />
@@ -90,9 +93,14 @@ export default function App() {
           />
         )}
 
-        {/* 3. Renderizado del panel de Selección */}
         {currentScreen === 'seleccion' && (
           <SelectionSortPanel
+            onBack={() => setCurrentScreen('ordered')}
+          />
+        )}
+
+        {currentScreen === 'shell' && (
+          <ShellSortPanel
             onBack={() => setCurrentScreen('ordered')}
           />
         )}
@@ -122,7 +130,7 @@ export default function App() {
         )}
 
         {currentScreen === 'exercise6' && (
-          <Exercise6Panel
+          <ShellSortPanel
             onBack={() => setCurrentScreen('ordered')}
           />
         )}
