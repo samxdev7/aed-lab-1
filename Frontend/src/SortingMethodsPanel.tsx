@@ -1,5 +1,5 @@
 import React from 'react';
-import { ArrowLeft, ArrowUpDown, Layers, Repeat, ShieldCheck, Sparkles, Zap } from 'lucide-react';
+import { ArrowLeft, ArrowUpDown, Circle, Layers, ShieldCheck, Sparkles, Zap } from 'lucide-react';
 
 interface SortingMethodsPanelProps {
   onBack: () => void;
@@ -11,7 +11,7 @@ export const SortingMethodsPanel: React.FC<SortingMethodsPanelProps> = ({
   onSelectAlgorithm,
 }) => {
   const methods = [
-    { id: 'burbuja', name: 'Burbuja', desc: 'Ordenación de burbujas', icon: Repeat },
+    { id: 'burbuja', name: 'Burbuja', desc: 'Ordenación de burbujas', icon: Circle },
     { id: 'burbuja-senal', name: 'Burbuja Señal', desc: 'Ordenación de burbujas con bandera', icon: ShieldCheck },
     { id: 'baraja', name: 'Baraja', desc: 'Clasificación por inserción', icon: Layers },
     { id: 'sacudida', name: 'Sacudida', desc: 'Tipo de cocteleros / cócteles', icon: Zap },
@@ -48,7 +48,7 @@ export const SortingMethodsPanel: React.FC<SortingMethodsPanelProps> = ({
               >
                 <div className="flex items-center gap-4">
                   <div className="p-3.5 rounded-xl bg-purple-500/10 text-purple-400 group-hover:bg-purple-600 group-hover:text-white transition-colors duration-300 shrink-0">
-                    <Icon className="w-6 h-6" />
+                    <Icon className="w-6 h-6 fill-current" />
                   </div>
                   <div>
                     <h3 className="text-xl font-bold text-white group-hover:text-purple-300 transition-colors">
