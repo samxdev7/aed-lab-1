@@ -7,7 +7,7 @@ import { ShakerSortPanel } from './ShakerSortPanel';
 import { BubbleSortPanel } from './BubbleSortPanel';
 import { BubbleSortSignalPanel } from './BubbleSortSignalPanel';
 import { InsertionSortPanel } from './InsertionSortPanel';
-import { Exercise5Panel } from './Exercise5Panel';
+import { SelectionSortPanel } from './SelectionSortPanel';
 import { Exercise6Panel } from './Exercise6Panel';
 import { NotificationProvider } from './NotificationContext';
 
@@ -21,6 +21,7 @@ export default function App() {
     | 'burbuja'
     | 'burbujaSenal'
     | 'baraja'
+    | 'seleccion' // <--- 1. Agregado aquí
     | 'exercise2'
     | 'exercise4'
     | 'exercise5'
@@ -58,6 +59,8 @@ export default function App() {
                 algorithmId === 'baraja-insercion'
               ) {
                 setCurrentScreen('baraja');
+              } else if (algorithmId === 'seleccion' || algorithmId === 'selection') { // <--- 2. Agregado aquí
+                setCurrentScreen('seleccion');
               }
             }}
           />
@@ -87,6 +90,13 @@ export default function App() {
           />
         )}
 
+        {/* 3. Renderizado del panel de Selección */}
+        {currentScreen === 'seleccion' && (
+          <SelectionSortPanel
+            onBack={() => setCurrentScreen('ordered')}
+          />
+        )}
+
         {currentScreen === 'binarySearch' && (
           <BinarySearchPanel
             onBack={() => setCurrentScreen('menu')}
@@ -106,7 +116,7 @@ export default function App() {
         )}
 
         {currentScreen === 'exercise5' && (
-          <Exercise5Panel
+          <SelectionSortPanel
             onBack={() => setCurrentScreen('ordered')}
           />
         )}

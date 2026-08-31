@@ -17,8 +17,8 @@ export const BubbleSortPanel: React.FC<BubbleSortPanelProps> = ({ onBack }) => {
   // Estados de control
   const [arraySize, setArraySize] = useState<string>('6');
   const [isSizeSet, setIsSizeSet] = useState<boolean>(true);
-  const [rawInput, setRawInput] = useState<string>('5, 6, 7, 9, 1, 23');
-  const [originalArray, setOriginalArray] = useState<number[]>([5, 6, 7, 9, 1, 23]);
+  const [rawInput, setRawInput] = useState<string>('');
+  const [originalArray, setOriginalArray] = useState<number[]>([]);
   const [sortedArray, setSortedArray] = useState<number[] | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
 

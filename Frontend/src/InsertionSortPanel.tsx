@@ -17,8 +17,8 @@ export const InsertionSortPanel: React.FC<InsertionSortPanelProps> = ({ onBack }
   // Estados de control
   const [arraySize, setArraySize] = useState<string>('6');
   const [isSizeSet, setIsSizeSet] = useState<boolean>(true);
-  const [rawInput, setRawInput] = useState<string>('34, 12, 89, 5, 23, 78');
-  const [originalArray, setOriginalArray] = useState<number[]>([34, 12, 89, 5, 23, 78]);
+  const [rawInput, setRawInput] = useState<string>('');
+  const [originalArray, setOriginalArray] = useState<number[]>([]);
   const [sortedArray, setSortedArray] = useState<number[] | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
 
