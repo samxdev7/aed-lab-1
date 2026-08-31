@@ -6,7 +6,6 @@ import uni.AEDLab1.models.BusquedaDto;
 
 @RestController
 @RequestMapping("/api/algoritmo")
-@CrossOrigin(origins = "*") // Permite la conexión desde React
 public class AlgoritmoController {
 
     @PostMapping("/busqueda")
