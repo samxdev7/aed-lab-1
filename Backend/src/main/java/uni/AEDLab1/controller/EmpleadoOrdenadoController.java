@@ -12,6 +12,7 @@ import uni.AEDLab1.services.Ejercicio4;
  */
 @RestController
 @RequestMapping("/api/empleados-ordenados")
+@CrossOrigin(origins = "*") // Habilita CORS para peticiones desde React
 public class EmpleadoOrdenadoController {
     
     // Instancia en memoria del servicio para el Ejercicio 4
