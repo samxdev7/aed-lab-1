@@ -4,7 +4,7 @@ import { ArrayMenuPanel } from './ArrayMenuPanel';
 import { SortingMethodsPanel } from './SortingMethodsPanel';
 import { BinarySearchPanel } from './BinarySearchPanel';
 import { ShakerSortPanel } from './ShakerSortPanel';
-import { Exercise2Panel } from './Exercise2Panel';
+import { BubbleSortPanel } from './BubbleSortPanel';
 import { Exercise3Panel } from './Exercise3Panel';
 import { Exercise4Panel } from './Exercise4Panel';
 import { Exercise5Panel } from './Exercise5Panel';
@@ -18,6 +18,7 @@ export default function App() {
     | 'ordered'
     | 'binarySearch'
     | 'sacudida'
+    | 'burbuja'
     | 'exercise2'
     | 'exercise3'
     | 'exercise4'
@@ -46,6 +47,8 @@ export default function App() {
             onSelectAlgorithm={(algorithmId: string) => {
               if (algorithmId === 'sacudida') {
                 setCurrentScreen('sacudida');
+              } else if (algorithmId === 'burbuja') {
+                setCurrentScreen('burbuja');
               }
             }}
           />
@@ -57,6 +60,12 @@ export default function App() {
           />
         )}
 
+        {currentScreen === 'burbuja' && (
+          <BubbleSortPanel
+            onBack={() => setCurrentScreen('ordered')}
+          />
+        )}
+
         {currentScreen === 'binarySearch' && (
           <BinarySearchPanel
             onBack={() => setCurrentScreen('menu')}
@@ -64,7 +73,7 @@ export default function App() {
         )}
 
         {currentScreen === 'exercise2' && (
-          <Exercise2Panel
+          <BubbleSortPanel
             onBack={() => setCurrentScreen('binarySearch')}
           />
         )}

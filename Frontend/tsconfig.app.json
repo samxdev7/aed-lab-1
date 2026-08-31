@@ -22,5 +22,5 @@
     "erasableSyntaxOnly": true,
     "noFallthroughCasesInSwitch": true
   },
-  "include": ["src", "src/SortingMethodsPanel.tsx"]
+  "include": ["src", "src/SortingMethodsPanel.tsx", "src/BubbleSortPanel.tsx"]
 }
