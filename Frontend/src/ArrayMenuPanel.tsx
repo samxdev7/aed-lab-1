@@ -29,7 +29,7 @@ export const ArrayMenuPanel: React.FC<ArrayMenuPanelProps> = ({
       <header className="flex flex-col items-center justify-center mt-2 mb-10 z-10 text-center">
         {/* Título blanco nítido sin sombras ni resplandores excesivos */}
         <h1 className="text-3xl md:text-5xl font-bold text-white tracking-tight mb-5">
-          Laboratorio #1: Arreglos Ordenados y Desordenados
+          Laboratorio #2: Métodos de Ordenación y Búsqueda
         </h1>
 
         {/* Subtítulo en morado con líneas y puntos exactos a la foto */}
@@ -39,7 +39,7 @@ export const ArrayMenuPanel: React.FC<ArrayMenuPanelProps> = ({
           <div className="h-[1px] w-10 md:w-20 bg-gradient-to-r from-transparent via-purple-400/60 to-purple-400"></div>
           
           <span className="px-3 font-semibold text-purple-300 tracking-wide text-base md:text-lg">
-            Selecciona el tipo de arreglo que deseas trabajar
+            Selecciona el tipo de método que deseas trabajar
           </span>
 
           <div className="h-[1px] w-10 md:w-20 bg-gradient-to-l from-transparent via-purple-400/60 to-purple-400"></div>
@@ -62,7 +62,7 @@ export const ArrayMenuPanel: React.FC<ArrayMenuPanelProps> = ({
             </svg>
           </div>
           <h2 className="text-3xl font-black text-cyan-200 tracking-wider">
-            Desordenados
+            Búsqueda
           </h2>
         </button>
 
@@ -78,7 +78,7 @@ export const ArrayMenuPanel: React.FC<ArrayMenuPanelProps> = ({
               </svg>
             </div>
             <h2 className="text-3xl font-black text-purple-200 tracking-wider">
-              Ordenados
+              Ordenamiento
             </h2>
           </button>
         </main>
