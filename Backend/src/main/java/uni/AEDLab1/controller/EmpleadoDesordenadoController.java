@@ -78,15 +78,6 @@ public class EmpleadoDesordenadoController {
     }
     
     /**
-     * Endpoint GET: Listar la información de todos los empleados.
-     */
-    @GetMapping("/empleado")
-    public ResponseEntity<EmpleadoDesordenadoDto[]> listarTodosLosEmpleados() {
-        EmpleadoDesordenadoDto[] listaEmpleados = servicioEmpleado.imprimirTodosLosDatos();
-        return new ResponseEntity<>(listaEmpleados, HttpStatusCode.valueOf(200));
-    }
-
-    /**
      * Endpoint GET: Listar únicamente los empleados varones.
      */
     @GetMapping("/empleado/varones")
