@@ -3,7 +3,7 @@ import { PresentationPanel } from './PresentationPanel';
 import { ArrayMenuPanel } from './ArrayMenuPanel';
 import { SortingMethodsPanel } from './SortingMethodsPanel';
 import { BinarySearchPanel } from './BinarySearchPanel';
-import { Exercise1Panel } from './Exercise1Panel';
+import { ShakerSortPanel } from './ShakerSortPanel';
 import { Exercise2Panel } from './Exercise2Panel';
 import { Exercise3Panel } from './Exercise3Panel';
 import { Exercise4Panel } from './Exercise4Panel';
@@ -17,7 +17,7 @@ export default function App() {
     | 'menu'
     | 'ordered'
     | 'binarySearch'
-    | 'exercise1'
+    | 'sacudida'
     | 'exercise2'
     | 'exercise3'
     | 'exercise4'
@@ -44,20 +44,22 @@ export default function App() {
           <SortingMethodsPanel
             onBack={() => setCurrentScreen('menu')}
             onSelectAlgorithm={(algorithmId: string) => {
-              console.log(`Algoritmo seleccionado: ${algorithmId}`);
+              if (algorithmId === 'sacudida') {
+                setCurrentScreen('sacudida');
+              }
             }}
+          />
+        )}
+
+        {currentScreen === 'sacudida' && (
+          <ShakerSortPanel
+            onBack={() => setCurrentScreen('ordered')}
           />
         )}
 
         {currentScreen === 'binarySearch' && (
           <BinarySearchPanel
             onBack={() => setCurrentScreen('menu')}
-          />
-        )}
-
-        {currentScreen === 'exercise1' && (
-          <Exercise1Panel
-            onBack={() => setCurrentScreen('binarySearch')}
           />
         )}
 
