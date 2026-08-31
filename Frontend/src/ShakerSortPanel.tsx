@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { PanelHeader, ArraySizeConfig, PanelFooter } from './CommonComponents';
 import { useNotification } from './NotificationContext';
 import { API_KEY, fetchRequest } from './HTTPMethods';
-import { Play, Repeat } from 'lucide-react';
+import { Zap } from 'lucide-react';
 
 interface ShakerSortPanelProps {
   onBack: () => void;
@@ -105,7 +105,7 @@ export const ShakerSortPanel: React.FC<ShakerSortPanelProps> = ({ onBack }) => {
               disabled={loading}
               className="bg-purple-600 hover:bg-purple-500 disabled:opacity-50 text-white font-semibold px-6 py-3 rounded-xl transition-all shadow-[0_0_15px_rgba(168,85,247,0.3)] active:scale-95 flex items-center gap-2 text-sm shrink-0"
             >
-              <Play className="w-4 h-4 fill-current" />
+              <Zap className="w-4 h-4 fill-current" />
               {loading ? 'Ordenando...' : 'Ordenar'}
             </button>
           </div>
@@ -116,7 +116,7 @@ export const ShakerSortPanel: React.FC<ShakerSortPanelProps> = ({ onBack }) => {
           {/* Arreglo Desordenado */}
           <div className="bg-[#11162b] border border-purple-500/30 rounded-2xl p-6 flex flex-col items-center justify-center min-h-[160px]">
             <h3 className="text-sm font-bold text-slate-300 mb-4 flex items-center gap-2">
-              <Repeat className="w-4 h-4 text-purple-400" /> Array Desordenado
+              <Zap className="w-4 h-4 text-purple-400 fill-current" /> Array Desordenado
             </h3>
             <div className="flex flex-wrap gap-2 justify-center">
               {originalArray.length > 0 ? (
@@ -137,7 +137,7 @@ export const ShakerSortPanel: React.FC<ShakerSortPanelProps> = ({ onBack }) => {
           {/* Arreglo Ordenado */}
           <div className="bg-[#11162b] border border-purple-500/30 rounded-2xl p-6 flex flex-col items-center justify-center min-h-[160px]">
             <h3 className="text-sm font-bold text-slate-300 mb-4 flex items-center gap-2">
-              <Repeat className="w-4 h-4 text-purple-400" /> Array Ordenado
+              <Zap className="w-4 h-4 text-purple-400 fill-current" /> Array Ordenado
             </h3>
             {sortedArray ? (
               <div className="flex flex-wrap gap-2 justify-center">
