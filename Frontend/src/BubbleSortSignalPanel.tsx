@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Circle } from 'lucide-react';
 import { API_KEY, fetchRequest } from './HTTPMethods';
 import { useNotification } from './NotificationContext';
 import { PanelHeader, ArraySizeConfig, PanelFooter } from './CommonComponents';
@@ -13,59 +14,62 @@ interface BubbleSortSignalPanelProps {
 export const BubbleSortSignalPanel: React.FC<BubbleSortSignalPanelProps> = ({ onBack }) => {
   const { showNotification } = useNotification();
 
-  // Estados de control para el tamaño del arreglo
+  // Estados de control
   const [arraySize, setArraySize] = useState<string>('6');
   const [isSizeSet, setIsSizeSet] = useState<boolean>(true);
-
-  // Estados para manejo del input de elementos y visualizaciones
-  const [inputArray, setInputArray] = useState<string>('5, 6, 7, 9, 1, 23');
+  const [rawInput, setRawInput] = useState<string>('5, 6, 7, 9, 1, 23');
   const [originalArray, setOriginalArray] = useState<number[]>([5, 6, 7, 9, 1, 23]);
   const [sortedArray, setSortedArray] = useState<number[] | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
 
-  // Convierte el string separado por comas a un array numérico
-  const parseElements = (val: string): number[] => {
-    return val
-      .split(',')
-      .map((item) => item.trim())
-      .filter((item) => item !== '' && !isNaN(Number(item)))
-      .map(Number);
-  };
-
-  // Handler al hacer clic en "Ordenar"
+  // Ejecución del algoritmo vía backend
   const handleSort = () => {
-    const parsed = parseElements(inputArray);
-    const expectedSize = Number(arraySize);
-
-    if (parsed.length === 0) {
-      showNotification('warning', 'Entrada vacía', 'Por favor, ingrese al menos un número.');
+    if (!rawInput.trim()) {
+      showNotification('warning', 'Entrada vacía', 'Por favor ingrese números separados por comas.');
       return;
     }
 
-    if (parsed.length !== expectedSize) {
+    const parsedArray = rawInput
+      .split(',')
+      .map((item) => item.trim())
+      .filter((item) => item !== '')
+      .map(Number);
+
+    if (parsedArray.some(isNaN)) {
+      showNotification('error', 'Formato inválido', 'Asegúrese de ingresar únicamente números válidos.');
+      return;
+    }
+
+    const limit = Number(arraySize);
+    if (parsedArray.length > limit) {
       showNotification(
         'warning',
-        'Tamaño no coincide',
-        `Ha ingresado ${parsed.length} elemento(s), pero el tamaño definido es ${expectedSize}.`
+        'Límite excedido',
+        `El arreglo contiene más elementos (${parsedArray.length}) que el tamaño definido (${limit}).`
       );
       return;
     }
 
-    setOriginalArray(parsed);
+    setOriginalArray(parsedArray);
     setLoading(true);
 
-    // Llamada HTTP enviando el arreglo desordenado al backend
-    fetchRequest<number[]>(path, {
-      method: 'POST',
-      body: { array: parsed },
-    })
+    const payload = {
+      tam: limit,
+      elementos: parsedArray,
+    };
+
+    fetchRequest<number[]>(path, { method: 'POST', body: payload })
       .then((res) => {
         setSortedArray(res);
-        showNotification('success', 'Arreglo Ordenado', 'La ordenación mediante Burbuja Señal se completó con éxito.');
+        showNotification(
+          'success',
+          'Ordenamiento completado',
+          'El arreglo fue ordenado exitosamente con el método de Burbuja Señal.'
+        );
       })
-      .catch((err: any) => {
+      .catch((err) => {
         console.error(err);
-        showNotification('error', 'Error al ordenar', err.message || 'No se pudo realizar el ordenamiento.');
+        showNotification('error', 'Error de Backend', err.message || 'No se pudo ordenar el arreglo.');
       })
       .finally(() => {
         setLoading(false);
@@ -74,16 +78,16 @@ export const BubbleSortSignalPanel: React.FC<BubbleSortSignalPanelProps> = ({ on
 
   return (
     <div className="min-h-screen bg-[#0a0d18] text-white flex flex-col justify-between p-8 font-sans">
-      {/* Encabezado en tono Violeta */}
+      {/* Header */}
       <PanelHeader
-        category="MÉTODOS DE ORDENACIÓN"
+        category="Métodos de Ordenación"
         title="Método de Ordenación Burbuja Señal"
         subtitle="Bubble Sort with Flag Algorithm"
         colorScheme="purple"
       />
 
       <main className="max-w-4xl mx-auto w-full flex flex-col gap-6 my-auto py-4">
-        {/* Componente de Tamaño del Arreglo */}
+        {/* Tamaño del Arreglo */}
         <ArraySizeConfig
           arraySize={arraySize}
           setArraySize={setArraySize}
@@ -92,65 +96,66 @@ export const BubbleSortSignalPanel: React.FC<BubbleSortSignalPanelProps> = ({ on
           colorScheme="purple"
         />
 
-        {/* Input de Elementos + Botón Ordenar */}
-        <div className="bg-[#11162b] border border-purple-500/30 rounded-2xl p-6 flex flex-col gap-3">
-          <label className="text-xs text-purple-300 font-medium text-center">
+        {/* Input y Acción */}
+        <div className="bg-[#11162b] border border-purple-500/30 rounded-2xl p-6">
+          <label className="block text-xs text-slate-400 mb-2 text-center font-medium">
             Elementos (separados por comas):
           </label>
           <div className="flex gap-4 items-center">
             <input
               type="text"
-              value={inputArray}
-              onChange={(e) => setInputArray(e.target.value)}
+              value={rawInput}
+              onChange={(e) => setRawInput(e.target.value)}
               placeholder="Ej: 5, 6, 7, 9, 1, 23"
               className="flex-1 bg-[#0a0d18] border border-purple-500/30 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-purple-400 transition-colors"
             />
             <button
               onClick={handleSort}
-              disabled={loading || !isSizeSet}
-              className="bg-purple-600 hover:bg-purple-500 disabled:opacity-50 text-white font-semibold px-6 py-3 rounded-xl transition-all shadow-[0_0_15px_rgba(168,85,247,0.3)] active:scale-95 text-sm flex items-center gap-2 shrink-0"
+              disabled={loading}
+              className="bg-purple-600 hover:bg-purple-500 disabled:opacity-50 text-white font-semibold px-6 py-3 rounded-xl transition-all shadow-[0_0_15px_rgba(168,85,247,0.3)] active:scale-95 flex items-center gap-2 text-sm shrink-0"
             >
-              <div className="w-3 h-3 rounded-full bg-white" />
+              <Circle className="w-4 h-4 fill-current" />
               {loading ? 'Ordenando...' : 'Ordenar'}
             </button>
           </div>
         </div>
 
-        {/* Paneles de Resultados (Desordenado vs Ordenado) */}
+        {/* Visualización de Resultados */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Panel Array Desordenado */}
+          {/* Arreglo Desordenado */}
           <div className="bg-[#11162b] border border-purple-500/30 rounded-2xl p-6 flex flex-col items-center justify-center min-h-[160px]">
-            <div className="flex items-center gap-2 mb-4">
-              <div className="w-2.5 h-2.5 rounded-full bg-purple-400" />
-              <span className="text-sm font-bold text-slate-200">Array Desordenado</span>
-            </div>
+            <h3 className="text-sm font-bold text-slate-300 mb-4 flex items-center gap-2">
+              <Circle className="w-4 h-4 text-purple-400 fill-current" /> Array Desordenado
+            </h3>
             <div className="flex flex-wrap gap-2 justify-center">
-              {originalArray.map((val, idx) => (
-                <div
-                  key={idx}
-                  className="w-11 h-11 bg-[#161c38] border border-purple-500/40 rounded-xl flex items-center justify-center font-bold text-purple-300 shadow-inner"
-                >
-                  {val}
-                </div>
-              ))}
+              {originalArray.length > 0 ? (
+                originalArray.map((num, idx) => (
+                  <div
+                    key={idx}
+                    className="w-12 h-12 rounded-xl bg-purple-900/30 border border-purple-500/40 flex items-center justify-center font-bold text-lg text-purple-200 shadow-inner"
+                  >
+                    {num}
+                  </div>
+                ))
+              ) : (
+                <span className="text-xs text-slate-500">Sin elementos</span>
+              )}
             </div>
           </div>
 
-          {/* Panel Array Ordenado */}
+          {/* Arreglo Ordenado */}
           <div className="bg-[#11162b] border border-purple-500/30 rounded-2xl p-6 flex flex-col items-center justify-center min-h-[160px]">
-            <div className="flex items-center gap-2 mb-4">
-              <div className="w-2.5 h-2.5 rounded-full bg-purple-400" />
-              <span className="text-sm font-bold text-slate-200">Array Ordenado</span>
-            </div>
-
+            <h3 className="text-sm font-bold text-slate-300 mb-4 flex items-center gap-2">
+              <Circle className="w-4 h-4 text-purple-400 fill-current" /> Array Ordenado
+            </h3>
             {sortedArray ? (
               <div className="flex flex-wrap gap-2 justify-center">
-                {sortedArray.map((val, idx) => (
+                {sortedArray.map((num, idx) => (
                   <div
                     key={idx}
-                    className="w-11 h-11 bg-purple-600/20 border border-purple-400 rounded-xl flex items-center justify-center font-bold text-purple-300 shadow-[0_0_10px_rgba(168,85,247,0.2)]"
+                    className="w-12 h-12 rounded-xl bg-purple-600/40 border border-purple-400 flex items-center justify-center font-bold text-lg text-white shadow-[0_0_10px_rgba(168,85,247,0.3)]"
                   >
-                    {val}
+                    {num}
                   </div>
                 ))}
               </div>
@@ -161,7 +166,7 @@ export const BubbleSortSignalPanel: React.FC<BubbleSortSignalPanelProps> = ({ on
         </div>
       </main>
 
-      {/* Botón de Atrás */}
+      {/* Botón Salir / Atrás */}
       <PanelFooter onBack={onBack} label="Atrás" colorScheme="purple" />
     </div>
   );
