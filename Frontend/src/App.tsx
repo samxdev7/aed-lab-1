@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { PresentationPanel } from './PresentationPanel';
 import { ArrayMenuPanel } from './ArrayMenuPanel';
-import { OrderedArrayPanel } from './OrderedArrayPanel';
+import { SortingMethodsPanel } from './SortingMethodsPanel';
 import { BinarySearchPanel } from './BinarySearchPanel';
 import { Exercise1Panel } from './Exercise1Panel';
 import { Exercise2Panel } from './Exercise2Panel';
@@ -41,18 +41,10 @@ export default function App() {
         )}
 
         {currentScreen === 'ordered' && (
-          <OrderedArrayPanel
+          <SortingMethodsPanel
             onBack={() => setCurrentScreen('menu')}
-            onSelectExercise={(id) => {
-              if (id === 4) {
-                setCurrentScreen('exercise4');
-              } else if (id === 5) {
-                setCurrentScreen('exercise5');
-              } else if (id === 6) {
-                setCurrentScreen('exercise6');
-              } else {
-                console.log(`Ejercicio Ordenado seleccionado: ${id}`);
-              }
+            onSelectAlgorithm={(algorithmId: string) => {
+              console.log(`Algoritmo seleccionado: ${algorithmId}`);
             }}
           />
         )}
