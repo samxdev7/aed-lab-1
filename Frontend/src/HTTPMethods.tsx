@@ -35,11 +35,11 @@ export async function apiRequest<Response>(url: string, options: FetchOptions = 
         if (errorJson && errorJson.message) {
           errorMsg = errorJson.message;
         }
-      } catch (_) {
+      } catch {
         try {
           const text = await response.text();
           if (text) errorMsg = text;
-        } catch (_) {}
+        } catch { /* ignore */ }
       }
       throw new Error(errorMsg);
     }
@@ -51,9 +51,10 @@ export async function apiRequest<Response>(url: string, options: FetchOptions = 
     }
 
     return await response.json();
-  } catch (error: any) {
+  } catch (error: unknown) {
     // Propagar el error para que sea manejado por el componente llamador
-    throw new Error(error.message || "Error de conexión con el servidor");
+    const errorMessage = error instanceof Error ? error.message : "Error de conexión con el servidor";
+    throw new Error(errorMessage, { cause: error });
   }
 }
 

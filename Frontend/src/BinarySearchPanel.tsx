@@ -96,7 +96,7 @@ export const BinarySearchPanel: React.FC<BinarySearchPanelProps> = ({ onBack }) 
       } else {
         setResultado(`El elemento ${valBuscar} no se encuentra en el arreglo.`);
       }
-    } catch (err) {
+    } catch {
       setError('Error al comunicar con el backend. Verifica que Spring Boot esté activo.');
     } finally {
       setCargando(false);

@@ -1,164 +1,23 @@
-import React, { useState } from 'react';
-import { PanelHeader, ArraySizeConfig, PanelFooter } from './CommonComponents';
-import { useNotification } from './NotificationContext';
-import { API_KEY, fetchRequest } from './HTTPMethods';
+import React from 'react';
 import { Zap } from 'lucide-react';
+import { API_KEY } from './HTTPMethods';
+import { GenericSortingPanel } from './GenericSortingPanel';
 
 interface ShakerSortPanelProps {
   onBack: () => void;
 }
 
-const path = `${API_KEY}/ordenamiento/sacudida`;
-
 export const ShakerSortPanel: React.FC<ShakerSortPanelProps> = ({ onBack }) => {
-  const { showNotification } = useNotification();
-
-  const [arraySize, setArraySize] = useState<string>('6');
-  const [isSizeSet, setIsSizeSet] = useState<boolean>(true);
-
-  const [elementsInput, setElementsInput] = useState<string>('');
-  const [originalArray, setOriginalArray] = useState<number[]>([]);
-  const [sortedArray, setSortedArray] = useState<number[] | null>(null);
-  const [loading, setLoading] = useState<boolean>(false);
-
-  const handleSort = () => {
-    if (!elementsInput.trim()) {
-      showNotification('warning', 'Entrada vacía', 'Por favor ingrese números separados por comas.');
-      return;
-    }
-
-    const numbers = elementsInput
-      .split(',')
-      .map((item) => item.trim())
-      .filter((item) => item !== '')
-      .map(Number);
-
-    if (numbers.some(isNaN)) {
-      showNotification('error', 'Formato inválido', 'Asegúrese de ingresar únicamente números válidos.');
-      return;
-    }
-
-    const maxTam = Number(arraySize);
-    if (numbers.length > maxTam) {
-      showNotification('warning', 'Límite excedido', `El arreglo contiene más elementos (${numbers.length}) que el tamaño definido (${maxTam}).`);
-      return;
-    }
-
-    setOriginalArray(numbers);
-    setLoading(true);
-
-    fetchRequest<number[]>(path, {
-      method: 'POST',
-      body: {
-        tam: maxTam,
-        elementos: numbers,
-      },
-    })
-      .then((res) => {
-        setSortedArray(res);
-        showNotification('success', 'Ordenamiento completado', 'Array ordenado con éxito mediante Sacudida.');
-      })
-      .catch((err) => {
-        console.error(err);
-        showNotification('error', 'Error en el servidor', err.message || 'No se pudo ordenar el arreglo.');
-      })
-      .finally(() => {
-        setLoading(false);
-      });
-  };
-
   return (
-    <div className="min-h-screen bg-[#0a0d18] text-white flex flex-col justify-between p-8 font-sans">
-      {/* Header */}
-      <PanelHeader
-        category="Métodos de Ordenación"
-        title="Método de Ordenación Sacudida"
-        subtitle="Cocktail / Shaker Sort Algorithm"
-        colorScheme="purple"
-      />
-
-      <main className="max-w-4xl mx-auto w-full flex flex-col gap-6 my-auto py-4">
-        {/* Tamaño del Arreglo */}
-        <ArraySizeConfig
-          arraySize={arraySize}
-          setArraySize={setArraySize}
-          isSizeSet={isSizeSet}
-          setIsSizeSet={setIsSizeSet}
-          colorScheme="purple"
-        />
-
-        {/* Input y Acción */}
-        <div className="bg-[#11162b] border border-purple-500/30 rounded-2xl p-6">
-          <label className="block text-xs text-slate-400 mb-2 text-center font-medium">
-            Elementos (separados por comas):
-          </label>
-          <div className="flex gap-4 items-center">
-            <input
-              type="text"
-              value={elementsInput}
-              onChange={(e) => setElementsInput(e.target.value)}
-              placeholder="Ej: 5, 6, 7, 9, 1, 23"
-              className="flex-1 bg-[#0a0d18] border border-purple-500/30 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-purple-400 transition-colors"
-            />
-            <button
-              onClick={handleSort}
-              disabled={loading}
-              className="bg-purple-600 hover:bg-purple-500 disabled:opacity-50 text-white font-semibold px-6 py-3 rounded-xl transition-all shadow-[0_0_15px_rgba(168,85,247,0.3)] active:scale-95 flex items-center gap-2 text-sm shrink-0"
-            >
-              <Zap className="w-4 h-4 fill-current" />
-              {loading ? 'Ordenando...' : 'Ordenar'}
-            </button>
-          </div>
-        </div>
-
-        {/* Visualización de Resultados */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Arreglo Desordenado */}
-          <div className="bg-[#11162b] border border-purple-500/30 rounded-2xl p-6 flex flex-col items-center justify-center min-h-[160px]">
-            <h3 className="text-sm font-bold text-slate-300 mb-4 flex items-center gap-2">
-              <Zap className="w-4 h-4 text-purple-400 fill-current" /> Array Desordenado
-            </h3>
-            <div className="flex flex-wrap gap-2 justify-center">
-              {originalArray.length > 0 ? (
-                originalArray.map((num, idx) => (
-                  <div
-                    key={idx}
-                    className="w-12 h-12 rounded-xl bg-purple-900/30 border border-purple-500/40 flex items-center justify-center font-bold text-lg text-purple-200 shadow-inner"
-                  >
-                    {num}
-                  </div>
-                ))
-              ) : (
-                <span className="text-xs text-slate-500">Sin elementos</span>
-              )}
-            </div>
-          </div>
-
-          {/* Arreglo Ordenado */}
-          <div className="bg-[#11162b] border border-purple-500/30 rounded-2xl p-6 flex flex-col items-center justify-center min-h-[160px]">
-            <h3 className="text-sm font-bold text-slate-300 mb-4 flex items-center gap-2">
-              <Zap className="w-4 h-4 text-purple-400 fill-current" /> Array Ordenado
-            </h3>
-            {sortedArray ? (
-              <div className="flex flex-wrap gap-2 justify-center">
-                {sortedArray.map((num, idx) => (
-                  <div
-                    key={idx}
-                    className="w-12 h-12 rounded-xl bg-purple-600/40 border border-purple-400 flex items-center justify-center font-bold text-lg text-white shadow-[0_0_10px_rgba(168,85,247,0.3)]"
-                  >
-                    {num}
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <p className="text-xs text-slate-500">Haga clic en "Ordenar"</p>
-            )}
-          </div>
-        </div>
-      </main>
-
-      {/* Botón Salir / Atrás */}
-      <PanelFooter onBack={onBack} label="Atrás" colorScheme="purple" />
-    </div>
+    <GenericSortingPanel
+      onBack={onBack}
+      endpointPath={`${API_KEY}/ordenamiento/sacudida`}
+      categoryTitle="Métodos de Ordenación"
+      methodTitle="Método de Ordenación Sacudida"
+      methodSubtitle="Cocktail / Shaker Sort Algorithm"
+      successMessage="Array ordenado con éxito mediante Sacudida."
+      icon={Zap}
+      colorScheme="purple"
+    />
   );
 };

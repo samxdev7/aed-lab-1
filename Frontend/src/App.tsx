@@ -23,10 +23,6 @@ export default function App() {
     | 'baraja'
     | 'seleccion'
     | 'shell'
-    | 'exercise2'
-    | 'exercise4'
-    | 'exercise5'
-    | 'exercise6'
   >('presentation');
 
   return (
@@ -111,29 +107,6 @@ export default function App() {
           />
         )}
 
-        {currentScreen === 'exercise2' && (
-          <BubbleSortPanel
-            onBack={() => setCurrentScreen('binarySearch')}
-          />
-        )}
-
-        {currentScreen === 'exercise4' && (
-          <InsertionSortPanel
-            onBack={() => setCurrentScreen('ordered')}
-          />
-        )}
-
-        {currentScreen === 'exercise5' && (
-          <SelectionSortPanel
-            onBack={() => setCurrentScreen('ordered')}
-          />
-        )}
-
-        {currentScreen === 'exercise6' && (
-          <ShellSortPanel
-            onBack={() => setCurrentScreen('ordered')}
-          />
-        )}
       </main>
     </NotificationProvider>
   );
