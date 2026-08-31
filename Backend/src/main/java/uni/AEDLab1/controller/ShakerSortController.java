@@ -6,7 +6,6 @@ import uni.AEDLab1.models.OrdenamientoDto;
 
 @RestController
 @RequestMapping("/api/ordenamiento")
-@CrossOrigin(origins = "*")
 public class ShakerSortController {
 
     @PostMapping("/sacudida")

@@ -6,7 +6,6 @@ import uni.AEDLab1.models.OrdenamientoDto;
 
 @RestController
 @RequestMapping("/api/metodos")
-@CrossOrigin(origins = "*")
 public class BubbleSortController {
 
     @PostMapping("/burbuja")
