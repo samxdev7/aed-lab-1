@@ -1,5 +1,6 @@
 package uni.AEDLab1.models;
 
+<<<<<<< HEAD
 public class OrdenamientoDto {
     private int tam;
     private int[] elementos;
@@ -27,3 +28,6 @@ public class OrdenamientoDto {
         this.elementos = elementos;
     }
 }
+=======
+public record OrdenamientoDto(int tam, int[] arreglo, int metodoDeOrdenamiento) {}
+>>>>>>> origin/develop
