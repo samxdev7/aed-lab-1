@@ -14,8 +14,6 @@ import uni.AEDLab1.services.BusquedaBinariaServicio.ResultadoBusqueda;
 @RequestMapping("/api/algoritmo")
 public class AlgoritmoController {
 
-    // Instancia en memoria del servicio para el Laboratorio 2
-    private OrdenamientoServicio servicioOrdenamiento = new OrdenamientoServicio();
     private BusquedaBinariaServicio servicioBusquedaBinaria = new BusquedaBinariaServicio();
 
     // Endpoint de Búsqueda Binaria (HEAD)
@@ -54,7 +52,7 @@ public class AlgoritmoController {
     // Endpoint de Ordenamiento (Develop)
     @PostMapping("/ordenamiento")
     public ResponseEntity<?> ordenarArreglo(@RequestBody OrdenamientoDto datos) {
-        int[] arregloOrdenado = servicioOrdenamiento.ejecutar(datos);
+        int[] arregloOrdenado = OrdenamientoServicio.ejecutar(datos);
         
         // Si no se ordena el arreglo correctamente o se selecciona un método inválido, retorna null
         if (arregloOrdenado == null) {
@@ -70,7 +68,7 @@ public class AlgoritmoController {
         // Se específica el método de ordenación "Shell" por su rapidez (opción 6)
         OrdenamientoDto arregloOriginal = new OrdenamientoDto(datos.tam(), datos.arreglo(), 6);
         
-        int[] arregloOrdenado = servicioOrdenamiento.ejecutar(arregloOriginal);
+        int[] arregloOrdenado = OrdenamientoServicio.ejecutar(arregloOriginal);
         if (arregloOrdenado == null) {
             return new ResponseEntity<>("Error: No se ordenó el arreglo con alguno de los métodos de ordenación.", HttpStatusCode.valueOf(400));
         }
