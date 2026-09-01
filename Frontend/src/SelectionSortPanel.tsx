@@ -1,6 +1,6 @@
 import React from 'react';
 import { ArrowUpDown } from 'lucide-react';
-import { API_KEY } from './HTTPMethods';
+
 import { GenericSortingPanel } from './GenericSortingPanel';
 
 interface SelectionSortPanelProps {
@@ -11,7 +11,7 @@ export const SelectionSortPanel: React.FC<SelectionSortPanelProps> = ({ onBack }
   return (
     <GenericSortingPanel
       onBack={onBack}
-      endpointPath={`${API_KEY}/ordenamiento/seleccion`}
+      metodoDeOrdenamiento={5}
       categoryTitle="MÉTODOS DE ORDENACIÓN"
       methodTitle="Método de Selección"
       methodSubtitle="Selection Sort Algorithm"

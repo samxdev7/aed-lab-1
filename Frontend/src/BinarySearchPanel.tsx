@@ -89,15 +89,15 @@ export const BinarySearchPanel: React.FC<BinarySearchPanelProps> = ({ onBack }) 
         objetivo: valBuscar,
       });
 
-      const pos = data.posicion !== undefined ? data.posicion : data;
+      const pos = data.indiceElementoEncontrado !== undefined ? data.indiceElementoEncontrado : (data.posicion !== undefined ? data.posicion : data);
 
       if (pos !== undefined && pos !== -1) {
         setResultado(`El elemento ${valBuscar} está en la posición ${pos}.`);
       } else {
         setResultado(`El elemento ${valBuscar} no se encuentra en el arreglo.`);
       }
-    } catch {
-      setError('Error al comunicar con el backend. Verifica que Spring Boot esté activo.');
+    } catch (err: any) {
+      setError(err.message || 'Error al comunicar con el backend. Verifica que Spring Boot esté activo.');
     } finally {
       setCargando(false);
     }

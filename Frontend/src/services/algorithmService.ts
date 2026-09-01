@@ -18,7 +18,11 @@ export const ejecutarOrdenamiento = async (datos: OrdenamientoDTO) => {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(datos)
   });
-  if (!response.ok) throw new Error('Error al ejecutar el algoritmo de ordenamiento');
+  if (!response.ok) {
+    if (response.status === 404) throw new Error('404: Servicio no encontrado (Ordenamiento)');
+    if (response.status === 500) throw new Error('500: Error interno del servidor');
+    throw new Error(`Error HTTP: ${response.status}`);
+  }
   return await response.json();
 };
 
@@ -28,6 +32,10 @@ export const ejecutarBusqueda = async (datos: BusquedaDTO) => {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(datos)
   });
-  if (!response.ok) throw new Error('Error al ejecutar la búsqueda binaria');
+  if (!response.ok) {
+    if (response.status === 404) throw new Error('404: Servicio no encontrado (Búsqueda)');
+    if (response.status === 500) throw new Error('500: Error interno del servidor');
+    throw new Error(`Error HTTP: ${response.status}`);
+  }
   return await response.json();
 };

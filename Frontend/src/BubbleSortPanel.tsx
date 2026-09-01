@@ -1,6 +1,6 @@
 import React from 'react';
 import { Circle } from 'lucide-react';
-import { API_KEY } from './HTTPMethods';
+
 import { GenericSortingPanel } from './GenericSortingPanel';
 
 interface BubbleSortPanelProps {
@@ -11,7 +11,7 @@ export const BubbleSortPanel: React.FC<BubbleSortPanelProps> = ({ onBack }) => {
   return (
     <GenericSortingPanel
       onBack={onBack}
-      endpointPath={`${API_KEY}/metodos/burbuja`}
+      metodoDeOrdenamiento={1}
       categoryTitle="Métodos de Ordenación"
       methodTitle="Método de Ordenación Burbuja"
       methodSubtitle="Bubble Sort Algorithm"

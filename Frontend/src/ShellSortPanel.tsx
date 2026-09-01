@@ -1,6 +1,6 @@
 import React from 'react';
 import { Sparkles } from 'lucide-react';
-import { API_KEY } from './HTTPMethods';
+
 import { GenericSortingPanel } from './GenericSortingPanel';
 
 interface ShellSortPanelProps {
@@ -11,7 +11,7 @@ export const ShellSortPanel: React.FC<ShellSortPanelProps> = ({ onBack }) => {
   return (
     <GenericSortingPanel
       onBack={onBack}
-      endpointPath={`${API_KEY}/ordenamiento/shell`}
+      metodoDeOrdenamiento={6}
       categoryTitle="MÉTODOS DE ORDENACIÓN"
       methodTitle="Método Shell"
       methodSubtitle="Shell Sort Algorithm"

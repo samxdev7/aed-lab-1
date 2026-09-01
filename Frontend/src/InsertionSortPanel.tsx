@@ -1,6 +1,6 @@
 import React from 'react';
 import { Layers } from 'lucide-react';
-import { API_KEY } from './HTTPMethods';
+
 import { GenericSortingPanel } from './GenericSortingPanel';
 
 interface InsertionSortPanelProps {
@@ -11,7 +11,7 @@ export const InsertionSortPanel: React.FC<InsertionSortPanelProps> = ({ onBack }
   return (
     <GenericSortingPanel
       onBack={onBack}
-      endpointPath={`${API_KEY}/ordenamiento/insercion`}
+      metodoDeOrdenamiento={3}
       categoryTitle="MÉTODOS DE ORDENACIÓN"
       methodTitle="Método Baraja"
       methodSubtitle="Insertion Sort Algorithm"

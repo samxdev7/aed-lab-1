@@ -1,6 +1,6 @@
 import React from 'react';
 import { Shield } from 'lucide-react';
-import { API_KEY } from './HTTPMethods';
+
 import { GenericSortingPanel } from './GenericSortingPanel';
 
 interface BubbleSortSignalPanelProps {
@@ -11,7 +11,7 @@ export const BubbleSortSignalPanel: React.FC<BubbleSortSignalPanelProps> = ({ on
   return (
     <GenericSortingPanel
       onBack={onBack}
-      endpointPath={`${API_KEY}/ordenamiento/burbuja-senal`}
+      metodoDeOrdenamiento={2}
       categoryTitle="Métodos de Ordenación"
       methodTitle="Método de Ordenación Burbuja Señal"
       methodSubtitle="Bubble Sort with Flag Algorithm"

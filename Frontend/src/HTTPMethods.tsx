@@ -30,6 +30,8 @@ export async function apiRequest<Response>(url: string, options: FetchOptions = 
     
     if (!response.ok) {
       let errorMsg = `Error del servidor: Código ${response.status}`;
+      if (response.status === 404) errorMsg = '404 Not Found: Servicio no encontrado';
+      if (response.status === 500) errorMsg = '500 Internal Error: Error interno en el backend';
       try {
         const errorJson = await response.json();
         if (errorJson && errorJson.message) {

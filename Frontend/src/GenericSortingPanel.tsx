@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
-import { fetchRequest } from './HTTPMethods';
 import { useNotification } from './NotificationContext';
 import { PanelHeader, ArraySizeConfig, PanelFooter } from './CommonComponents';
 import type { ColorScheme } from './CommonComponents';
+import { ejecutarOrdenamiento } from './services/algorithmService';
 
 export interface GenericSortingPanelProps {
   onBack: () => void;
-  endpointPath: string;
+  metodoDeOrdenamiento: number;
   categoryTitle: string;
   methodTitle: string;
   methodSubtitle: string;
@@ -17,7 +17,7 @@ export interface GenericSortingPanelProps {
 
 export const GenericSortingPanel: React.FC<GenericSortingPanelProps> = ({
   onBack,
-  endpointPath,
+  metodoDeOrdenamiento,
   categoryTitle,
   methodTitle,
   methodSubtitle,
@@ -66,17 +66,16 @@ export const GenericSortingPanel: React.FC<GenericSortingPanelProps> = ({
     setOriginalArray(parsedArray);
     setLoading(true);
 
-    const payload = {
+    ejecutarOrdenamiento({
       tam: limit,
-      elementos: parsedArray,
-    };
-
-    fetchRequest<number[]>(endpointPath, { method: 'POST', body: payload })
+      arreglo: parsedArray,
+      metodoDeOrdenamiento
+    })
       .then((res) => {
         setSortedArray(res);
         showNotification('success', 'Ordenamiento completado', successMessage);
       })
-      .catch((err) => {
+      .catch((err: any) => {
         console.error(err);
         showNotification('error', 'Error de Backend', err.message || 'No se pudo ordenar el arreglo.');
       })
