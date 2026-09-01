@@ -1,14 +1,24 @@
 package uni.AEDLab1.controller;
 
-<<<<<<< HEAD
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import uni.AEDLab1.models.BusquedaDto;
+import uni.AEDLab1.models.BusquedaBinariaDto;
+import uni.AEDLab1.models.OrdenamientoDto;
+import uni.AEDLab1.services.BusquedaBinariaServicio;
+import uni.AEDLab1.services.OrdenamientoServicio;
+import uni.AEDLab1.services.BusquedaBinariaServicio.ResultadoBusqueda;
 
 @RestController
 @RequestMapping("/api/algoritmo")
 public class AlgoritmoController {
 
+    // Instancia en memoria del servicio para el Laboratorio 2
+    private OrdenamientoServicio servicioOrdenamiento = new OrdenamientoServicio();
+    private BusquedaBinariaServicio servicioBusquedaBinaria = new BusquedaBinariaServicio();
+
+    // Endpoint de Búsqueda Binaria (HEAD)
     @PostMapping("/busqueda")
     public ResponseEntity<?> busquedaBinaria(@RequestBody BusquedaDto dto) {
         int[] arr = dto.getArreglo();
@@ -40,35 +50,9 @@ public class AlgoritmoController {
 
         return ResponseEntity.ok(posicion);
     }
-}
-=======
-import org.springframework.http.HttpStatusCode;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-import uni.AEDLab1.models.BusquedaBinariaDto;
-import uni.AEDLab1.models.OrdenamientoDto;
-import uni.AEDLab1.services.BusquedaBinariaServicio;
-import uni.AEDLab1.services.OrdenamientoServicio;
-import uni.AEDLab1.services.BusquedaBinariaServicio.ResultadoBusqueda;
 
-/**
- * Controlador REST para gestionar los algoritmos de ordenamiento y de búsqueda binaria.
- * Expone los endpoints para interactuar con el arreglo desordenado de clientes.
- */
-@RestController
-@RequestMapping("/api/")
-public class AlgoritmoController {
-    
-    // Instancia en memoria del servicio para el Laboratorio 2
-    private OrdenamientoServicio servicioOrdenamiento = new OrdenamientoServicio();
-    private BusquedaBinariaServicio servicioBusquedaBinaria = new BusquedaBinariaServicio();
-    
-    /**
-     * Endpoint POST: /algoritmo/ordenamiento
-     * Ordena un arreglo como entrada y el método de ordenación seleccionado, 
-     * una vez ordenado se devuelve.
-     */
-    @PostMapping("/algoritmo/ordenamiento")
+    // Endpoint de Ordenamiento (Develop)
+    @PostMapping("/ordenamiento")
     public ResponseEntity<?> ordenarArreglo(@RequestBody OrdenamientoDto datos) {
         int[] arregloOrdenado = servicioOrdenamiento.ejecutar(datos);
         
@@ -80,11 +64,8 @@ public class AlgoritmoController {
         return new ResponseEntity<>(arregloOrdenado, HttpStatusCode.valueOf(201));
     }
     
-    /**
-     * Endpoint POST: /algoritmo/busqueda
-     * Consume el elemento a encontrar y el arreglo, se devuelve el indice del elemento encontrado.
-     */
-    @PostMapping("/algoritmo/busqueda")
+    // Endpoint de Búsqueda Binaria con ordenamiento previo (Develop)
+    @PostMapping("/busqueda-con-ordenamiento")
     public ResponseEntity<?> buscarElemento(@RequestBody BusquedaBinariaDto datos) {
         // Se específica el método de ordenación "Shell" por su rapidez (opción 6)
         OrdenamientoDto arregloOriginal = new OrdenamientoDto(datos.tam(), datos.arreglo(), 6);
@@ -110,4 +91,3 @@ public class AlgoritmoController {
         return new ResponseEntity<>(res, HttpStatusCode.valueOf(201));
     }
 }
->>>>>>> origin/develop
