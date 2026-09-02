@@ -17,21 +17,11 @@ export const BinarySearchPanel: React.FC<BinarySearchPanelProps> = ({ onBack }) 
   const [cargando, setCargando] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Guardar Tamaño
-  const handleGuardarTamano = () => {
-    const num = parseInt(tamano);
-    if (isNaN(num) || num <= 0) {
-      setError('Por favor ingresa un número entero válido y mayor a 0 para el tamaño.');
-      return;
-    }
-    setError(null);
-  };
-
-  // Guardar Elementos y Ordenar
+  // Guardar Elementos y Ordenar (Validando estrictamente números enteros)
   const handleGuardarElementos = () => {
     const tamNum = parseInt(tamano);
-    if (!tamNum || isNaN(tamNum) || tamNum <= 0) {
-      setError('Primero debes ingresar y guardar un tamaño válido mayor a 0.');
+    if (!tamano.trim() || isNaN(tamNum) || tamNum <= 0 || !Number.isInteger(Number(tamano))) {
+      setError('Por favor ingresa un tamaño válido (número entero mayor a 0).');
       return;
     }
 
@@ -42,10 +32,14 @@ export const BinarySearchPanel: React.FC<BinarySearchPanelProps> = ({ onBack }) 
 
     const items = elementosInput.split(',').map((item) => item.trim()).filter((item) => item !== '');
 
-    // Validar que todos los elementos sean valores numéricos
-    const hayInvalidos = items.some((item) => isNaN(Number(item)));
-    if (hayInvalidos) {
-      setError('Has ingresado un valor no numérico. Solo se permiten números separados por comas.');
+    // Validar que TODOS los elementos sean enteros
+    const soloEnteros = items.every((item) => {
+      const num = Number(item);
+      return !isNaN(num) && Number.isInteger(num);
+    });
+
+    if (!soloEnteros) {
+      setError('Solo se permiten números enteros separados por comas (no se aceptan decimales ni letras).');
       return;
     }
 
@@ -73,9 +67,9 @@ export const BinarySearchPanel: React.FC<BinarySearchPanelProps> = ({ onBack }) 
       return;
     }
 
-    const valBuscar = parseFloat(objetivo);
-    if (isNaN(valBuscar)) {
-      setError('El elemento a buscar debe ser un número válido.');
+    const valBuscar = Number(objetivo);
+    if (isNaN(valBuscar) || !Number.isInteger(valBuscar)) {
+      setError('El elemento a buscar debe ser un número entero válido.');
       return;
     }
 
@@ -89,15 +83,15 @@ export const BinarySearchPanel: React.FC<BinarySearchPanelProps> = ({ onBack }) 
         objetivo: valBuscar,
       });
 
-      const pos = data.indiceElementoEncontrado !== undefined ? data.indiceElementoEncontrado : (data.posicion !== undefined ? data.posicion : data);
+      const pos = data.posicion !== undefined ? data.posicion : data;
 
       if (pos !== undefined && pos !== -1) {
         setResultado(`El elemento ${valBuscar} está en la posición ${pos}.`);
       } else {
         setResultado(`El elemento ${valBuscar} no se encuentra en el arreglo.`);
       }
-    } catch (err: any) {
-      setError(err.message || 'Error al comunicar con el backend. Verifica que Spring Boot esté activo.');
+    } catch {
+      setError('Error al comunicar con el backend. Verifica que Spring Boot esté activo.');
     } finally {
       setCargando(false);
     }
@@ -105,7 +99,6 @@ export const BinarySearchPanel: React.FC<BinarySearchPanelProps> = ({ onBack }) 
 
   return (
     <div className="min-h-screen bg-[#0a0d18] text-white flex flex-col justify-between p-8 font-sans">
-      {/* Encabezado */}
       <header className="text-center mt-2">
         <h1 className="text-4xl font-extrabold tracking-tight mb-2">
           Método de Búsqueda Binaria
@@ -119,22 +112,15 @@ export const BinarySearchPanel: React.FC<BinarySearchPanelProps> = ({ onBack }) 
         </div>
       </header>
 
-      {/* Mensaje de Error */}
       {error && (
         <div className="max-w-3xl mx-auto w-full bg-red-500/10 border border-red-500/40 text-red-400 p-3.5 rounded-xl text-center text-sm font-medium my-2 animate-fade-in">
           {error}
         </div>
       )}
 
-      {/* Estructura Principal */}
       <main className="max-w-5xl mx-auto w-full grid grid-cols-1 md:grid-cols-2 gap-8 my-auto py-4">
-        
-        {/* SECCIÓN IZQUIERDA: Entradas + Array Ordenado */}
         <div className="flex flex-col gap-6">
-          
-          {/* Inputs de Entrada */}
           <div className="bg-[#11162b] p-6 rounded-2xl border border-cyan-500/30 flex flex-col gap-5">
-            {/* Tam. del Arreglo */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <label className="text-base font-semibold text-slate-300 whitespace-nowrap">
                 Tam. del Arreglo
@@ -142,22 +128,15 @@ export const BinarySearchPanel: React.FC<BinarySearchPanelProps> = ({ onBack }) 
               <div className="flex gap-2 w-full sm:w-auto">
                 <input
                   type="number"
+                  step="1"
                   value={tamano}
                   onChange={(e) => setTamano(e.target.value)}
                   placeholder="Ej. 6"
-                  className="w-full sm:w-64 bg-[#0a0d18] border border-cyan-500/30 rounded-xl px-4 py-3 text-lg text-white focus:outline-none focus:border-cyan-400 transition-colors"
+                  className="w-full sm:w-80 bg-[#0a0d18] border border-cyan-500/30 rounded-xl px-4 py-3 text-lg text-white focus:outline-none focus:border-cyan-400 transition-colors"
                 />
-                <button
-                  onClick={handleGuardarTamano}
-                  className="p-3 bg-cyan-500/20 text-cyan-400 hover:bg-cyan-500 hover:text-white rounded-xl transition-colors shrink-0"
-                  title="Guardar Tamaño"
-                >
-                  <Save className="w-6 h-6" />
-                </button>
               </div>
             </div>
 
-            {/* Elementos */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <label className="text-base font-semibold text-slate-300 whitespace-nowrap">
                 Elementos
@@ -181,7 +160,6 @@ export const BinarySearchPanel: React.FC<BinarySearchPanelProps> = ({ onBack }) 
             </div>
           </div>
 
-          {/* Caja Array Ordenado con Scroll Horizontal */}
           <div className="bg-[#11162b] p-6 rounded-2xl border border-cyan-500/30 min-h-[160px] flex flex-col justify-between">
             <div className="w-full overflow-x-auto pb-3 custom-scrollbar">
               <div className="flex items-center gap-2.5 min-w-max my-auto py-2 px-1">
@@ -205,13 +183,9 @@ export const BinarySearchPanel: React.FC<BinarySearchPanelProps> = ({ onBack }) 
               Array Ordenado
             </span>
           </div>
-
         </div>
 
-        {/* SECCIÓN DERECHA: Búsqueda (X) + Resultado */}
         <div className="flex flex-col gap-6 justify-between">
-          
-          {/* Elemento a Buscar (X) + Buscar */}
           <div className="bg-[#11162b] p-6 rounded-2xl border border-cyan-500/30 flex flex-col sm:flex-row items-center justify-between gap-4">
             <label className="text-base font-semibold text-slate-300 whitespace-nowrap">
               Elemento a Buscar
@@ -220,6 +194,7 @@ export const BinarySearchPanel: React.FC<BinarySearchPanelProps> = ({ onBack }) 
             <div className="flex items-center gap-3 w-full sm:w-auto">
               <input
                 type="number"
+                step="1"
                 value={objetivo}
                 onChange={(e) => setObjetivo(e.target.value)}
                 placeholder="X"
@@ -236,7 +211,6 @@ export const BinarySearchPanel: React.FC<BinarySearchPanelProps> = ({ onBack }) 
             </div>
           </div>
 
-          {/* Caja Grande de Resultado */}
           <div className="bg-[#11162b] p-8 rounded-2xl border border-cyan-500/30 flex-1 min-h-[180px] flex items-center justify-center text-center">
             {resultado ? (
               <div className="flex items-center gap-3 text-emerald-400 font-medium">
@@ -249,12 +223,9 @@ export const BinarySearchPanel: React.FC<BinarySearchPanelProps> = ({ onBack }) 
               </p>
             )}
           </div>
-
         </div>
-
       </main>
 
-      {/* Botón Atrás */}
       <footer className="flex justify-end w-full max-w-5xl mx-auto">
         <button
           onClick={onBack}
