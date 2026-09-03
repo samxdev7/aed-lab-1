@@ -96,7 +96,10 @@ public class OrdenamientoServicio {
             
             // MetodoDeOrdenamiento Sacudida
             int izq = 1, der = tam - 1 , k = tam - 1;
-            while (der > izq) {
+            
+            // Se cambia a der >= izq para asegurar la ordenación de elementos adyacentes 
+            // cuando los límites coinciden.
+            while (der >= izq) {
                 for (int i = der; i >= izq; i--) {
                     if (arreglo[i - 1] > arreglo[i]) {
                         int temp = arreglo[i-1];
