@@ -1,10 +1,8 @@
 import React from 'react';
 import { ArrowLeft, Check } from 'lucide-react';
-import { guardarTamano } from './services/algorithmService';
-import { useNotification } from './NotificationContext';
+
 export type ColorScheme = 'cyan' | 'purple' | 'red';
 
-// eslint-disable-next-line react-refresh/only-export-components
 export const getColorStyles = (colorScheme: ColorScheme = 'cyan') => {
   switch (colorScheme) {
     case 'purple':
@@ -107,7 +105,6 @@ export const ArraySizeConfig: React.FC<ArraySizeConfigProps> = ({
   colorScheme = 'cyan',
 }) => {
   const styles = getColorStyles(colorScheme);
-  const { showNotification } = useNotification();
   return (
     <div className={`bg-[#11162b] border ${styles.border} rounded-2xl p-4 flex flex-wrap items-center justify-between gap-4`}>
       <div className="flex items-center gap-3">
@@ -129,15 +126,9 @@ export const ArraySizeConfig: React.FC<ArraySizeConfigProps> = ({
             placeholder="1"
           />
           <button
-            onClick={async () => {
+            onClick={() => {
               if (Number(arraySize) > 0) {
-                try {
-                  const data = await guardarTamano(Number(arraySize));
-                  showNotification('success', 'Tamaño Guardado', data.message);
-                  setIsSizeSet(true);
-                } catch (err: any) {
-                  showNotification('error', 'Error al guardar tamaño', err.message);
-                }
+                setIsSizeSet(true);
               }
             }}
             disabled={!arraySize || Number(arraySize) <= 0}

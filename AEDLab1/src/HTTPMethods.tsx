@@ -30,18 +30,16 @@ export async function apiRequest<Response>(url: string, options: FetchOptions = 
     
     if (!response.ok) {
       let errorMsg = `Error del servidor: Código ${response.status}`;
-      if (response.status === 404) errorMsg = '404 Not Found: Servicio no encontrado';
-      if (response.status === 500) errorMsg = '500 Internal Error: Error interno en el backend';
       try {
         const errorJson = await response.json();
         if (errorJson && errorJson.message) {
           errorMsg = errorJson.message;
         }
-      } catch {
+      } catch (_) {
         try {
           const text = await response.text();
           if (text) errorMsg = text;
-        } catch { /* ignore */ }
+        } catch (_) {}
       }
       throw new Error(errorMsg);
     }
@@ -53,10 +51,9 @@ export async function apiRequest<Response>(url: string, options: FetchOptions = 
     }
 
     return await response.json();
-  } catch (error: unknown) {
+  } catch (error: any) {
     // Propagar el error para que sea manejado por el componente llamador
-    const errorMessage = error instanceof Error ? error.message : "Error de conexión con el servidor";
-    throw new Error(errorMessage, { cause: error });
+    throw new Error(error.message || "Error de conexión con el servidor");
   }
 }
 
