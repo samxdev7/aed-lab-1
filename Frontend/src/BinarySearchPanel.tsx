@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
 import { ArrowLeft, Save, Search, CheckCircle2 } from 'lucide-react';
-import { ejecutarBusqueda } from './services/algorithmService';
-
+import { ejecutarBusqueda, guardarTamano } from './services/algorithmService';
+import { useNotification } from './NotificationContext';
 interface BinarySearchPanelProps {
   onBack: () => void;
 }
 
 export const BinarySearchPanel: React.FC<BinarySearchPanelProps> = ({ onBack }) => {
+  const { showNotification } = useNotification();
   const [tamano, setTamano] = useState<string>('');
   const [elementosInput, setElementosInput] = useState<string>('');
   const [arregloGuardado, setArregloGuardado] = useState<number[]>([]);
@@ -18,13 +19,19 @@ export const BinarySearchPanel: React.FC<BinarySearchPanelProps> = ({ onBack }) 
   const [error, setError] = useState<string | null>(null);
 
   // Guardar Tamaño
-  const handleGuardarTamano = () => {
+  const handleGuardarTamano = async () => {
     const num = parseInt(tamano);
     if (isNaN(num) || num <= 0) {
       setError('Por favor ingresa un número entero válido y mayor a 0 para el tamaño.');
       return;
     }
     setError(null);
+    try {
+      const data = await guardarTamano(num);
+      showNotification('success', 'Tamaño Guardado', data.message);
+    } catch (err: any) {
+      setError(err.message || 'Error al guardar tamaño en el backend');
+    }
   };
 
   // Guardar Elementos y Ordenar

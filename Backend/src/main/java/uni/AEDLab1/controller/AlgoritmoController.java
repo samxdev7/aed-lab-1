@@ -67,4 +67,18 @@ public class AlgoritmoController {
         ResultadoBusqueda res = new ResultadoBusqueda(arregloOrdenado, indiceElementoEncontrado);
         return new ResponseEntity<>(res, HttpStatusCode.valueOf(201));
     }
+
+    /**
+     * Endpoint POST: /algoritmo/tamano
+     * Guarda el tamaño del arreglo y devuelve un mensaje de confirmación.
+     */
+    @PostMapping("/algoritmo/tamano")
+    public ResponseEntity<?> guardarTamano(@RequestBody java.util.Map<String, Integer> payload) {
+        Integer tamano = payload.get("tamano");
+        if (tamano == null || tamano <= 0) {
+            return new ResponseEntity<>("Error: Tamaño inválido", HttpStatusCode.valueOf(400));
+        }
+        
+        return new ResponseEntity<>(java.util.Map.of("message", "El tamaño del arreglo (" + tamano + " elementos) ha sido guardado exitosamente."), HttpStatusCode.valueOf(200));
+    }
 }
