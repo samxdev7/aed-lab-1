@@ -42,18 +42,25 @@ export const GenericSortingPanel: React.FC<GenericSortingPanelProps> = ({
       return;
     }
 
-    const parsedArray = rawInput
+    const items = rawInput
       .split(',')
       .map((item) => item.trim())
-      .filter((item) => item !== '')
-      .map(Number);
+      .filter((item) => item !== '');
 
-    if (parsedArray.some(isNaN)) {
-      showNotification('error', 'Formato inválido', 'Asegúrese de ingresar únicamente números válidos.');
+    const soloEnteros = items.every((item) => /^-?\d+$/.test(item));
+    if (!soloEnteros) {
+      showNotification('error', 'Formato inválido', 'Asegúrese de ingresar únicamente números enteros (sin decimales ni letras).');
       return;
     }
 
+    const parsedArray = items.map((item) => parseInt(item, 10));
+
     const limit = Number(arraySize);
+    if (!arraySize || isNaN(limit) || limit <= 0 || !Number.isInteger(limit)) {
+      showNotification('error', 'Tamaño inválido', 'El tamaño del arreglo debe ser un entero positivo.');
+      return;
+    }
+
     if (parsedArray.length > limit) {
       showNotification(
         'warning',
@@ -62,6 +69,7 @@ export const GenericSortingPanel: React.FC<GenericSortingPanelProps> = ({
       );
       return;
     }
+
 
     setOriginalArray(parsedArray);
     setLoading(true);

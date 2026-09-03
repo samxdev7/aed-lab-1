@@ -3,6 +3,17 @@ package uni.AEDLab1.services;
 import uni.AEDLab1.models.OrdenamientoDto;
 
 public class OrdenamientoServicio {
+    // Atributo para almacenar el tamaño del arreglo con el que se va a trabajar
+    private static int tamanoGuardado = 0;
+
+    public static int getTamanoGuardado() {
+        return tamanoGuardado;
+    }
+
+    public static void setTamanoGuardado(int tamano) {
+        tamanoGuardado = tamano;
+    }
+
     /** Menú de métodos de ordenacion:
      * BURBUJA(1), 
      * BURBUJACONSENAL(2), 
