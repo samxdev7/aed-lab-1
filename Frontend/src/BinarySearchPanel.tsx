@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
 import { ArrowLeft, Save, Search, CheckCircle2 } from 'lucide-react';
-import { ejecutarBusqueda } from './services/algorithmService';
+import { ejecutarBusqueda, ejecutarOrdenamiento, guardarTamano } from './services/algorithmService';
+import { useNotification } from './NotificationContext';
 
 interface BinarySearchPanelProps {
   onBack: () => void;
 }
 
 export const BinarySearchPanel: React.FC<BinarySearchPanelProps> = ({ onBack }) => {
+  const { showNotification } = useNotification();
   const [tamano, setTamano] = useState<string>('');
   const [elementosInput, setElementosInput] = useState<string>('');
   const [arregloGuardado, setArregloGuardado] = useState<number[]>([]);
@@ -17,10 +19,34 @@ export const BinarySearchPanel: React.FC<BinarySearchPanelProps> = ({ onBack }) 
   const [cargando, setCargando] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Guardar Elementos y Ordenar (Validando estrictamente números enteros)
-  const handleGuardarElementos = () => {
-    const tamNum = parseInt(tamano);
-    if (!tamano.trim() || isNaN(tamNum) || tamNum <= 0 || !Number.isInteger(Number(tamano))) {
+  // Guardar Tamaño
+  const handleGuardarTamano = async () => {
+    if (!tamano.trim() || !/^\d+$/.test(tamano.trim())) {
+      setError('Por favor ingresa un número entero válido y mayor a 0 para el tamaño.');
+      return;
+    }
+    const num = parseInt(tamano, 10);
+    if (num <= 0) {
+      setError('Por favor ingresa un número entero válido y mayor a 0 para el tamaño.');
+      return;
+    }
+    setError(null);
+    try {
+      const data = await guardarTamano(num);
+      showNotification('success', 'Tamaño Guardado', data.message || 'Tamaño guardado correctamente en el backend');
+    } catch (err: any) {
+      setError(err.message || 'Error al guardar tamaño en el backend');
+    }
+  };
+
+  // Guardar Elementos y Ordenar mediante el Backend de Java (sin usar .sort de JS)
+  const handleGuardarElementos = async () => {
+    if (!tamano.trim() || !/^\d+$/.test(tamano.trim())) {
+      setError('Por favor ingresa un tamaño válido (número entero mayor a 0).');
+      return;
+    }
+    const tamNum = parseInt(tamano, 10);
+    if (tamNum <= 0) {
       setError('Por favor ingresa un tamaño válido (número entero mayor a 0).');
       return;
     }
@@ -32,27 +58,42 @@ export const BinarySearchPanel: React.FC<BinarySearchPanelProps> = ({ onBack }) 
 
     const items = elementosInput.split(',').map((item) => item.trim()).filter((item) => item !== '');
 
-    // Validar que TODOS los elementos sean enteros
-    const soloEnteros = items.every((item) => {
-      const num = Number(item);
-      return !isNaN(num) && Number.isInteger(num);
-    });
+    // Validar que TODOS los elementos sean números enteros estrictos (sin decimales ni texto)
+    const soloEnteros = items.every((item) => /^-?\d+$/.test(item));
 
     if (!soloEnteros) {
       setError('Solo se permiten números enteros separados por comas (no se aceptan decimales ni letras).');
       return;
     }
 
-    const valores = items.map(Number);
+    const valores = items.map((item) => parseInt(item, 10));
 
     if (valores.length !== tamNum) {
       setError(`Se esperaban ${tamNum} elementos según el tamaño ingresado, pero ingresaste ${valores.length}.`);
       return;
     }
 
-    const ordenado = [...valores].sort((a, b) => a - b);
-    setArregloGuardado(ordenado);
+    setCargando(true);
     setError(null);
+
+    try {
+      // Guardar el tamaño en el backend
+      await guardarTamano(tamNum);
+      
+      // Ordenar el arreglo consumiendo el controlador de Java (Shell Sort / Opción 6)
+      const resOrdenado = await ejecutarOrdenamiento({
+        tam: tamNum,
+        arreglo: valores,
+        metodoDeOrdenamiento: 6,
+      });
+
+      setArregloGuardado(resOrdenado);
+      showNotification('success', 'Arreglo Procesado', 'El arreglo ha sido ordenado y guardado utilizando el Backend en Java.');
+    } catch (err: any) {
+      setError(err.message || 'Error al procesar el arreglo en el backend.');
+    } finally {
+      setCargando(false);
+    }
   };
 
   // Ejecutar Búsqueda contra Backend
@@ -62,16 +103,12 @@ export const BinarySearchPanel: React.FC<BinarySearchPanelProps> = ({ onBack }) 
       return;
     }
     
-    if (!objetivo.trim()) {
-      setError('Por favor ingresa el valor que deseas buscar.');
+    if (!objetivo.trim() || !/^-?\d+$/.test(objetivo.trim())) {
+      setError('El elemento a buscar debe ser un número entero válido (sin decimales ni letras).');
       return;
     }
 
-    const valBuscar = Number(objetivo);
-    if (isNaN(valBuscar) || !Number.isInteger(valBuscar)) {
-      setError('El elemento a buscar debe ser un número entero válido.');
-      return;
-    }
+    const valBuscar = parseInt(objetivo.trim(), 10);
 
     setCargando(true);
     setError(null);
@@ -83,19 +120,33 @@ export const BinarySearchPanel: React.FC<BinarySearchPanelProps> = ({ onBack }) 
         objetivo: valBuscar,
       });
 
-      const pos = data.posicion !== undefined ? data.posicion : data;
+      // Extraer indiceElementoEncontrado del objeto JSON devuelto por el Backend
+      let pos: number = -1;
+      if (typeof data === 'object' && data !== null) {
+        if ('indiceElementoEncontrado' in data) {
+          pos = (data as any).indiceElementoEncontrado;
+        } else if ('posicion' in data) {
+          pos = (data as any).posicion;
+        }
+        if ((data as any).arregloOrdenado && Array.isArray((data as any).arregloOrdenado)) {
+          setArregloGuardado((data as any).arregloOrdenado);
+        }
+      } else if (typeof data === 'number') {
+        pos = data;
+      }
 
-      if (pos !== undefined && pos !== -1) {
-        setResultado(`El elemento ${valBuscar} está en la posición ${pos}.`);
+      if (pos !== -1 && pos !== undefined) {
+        setResultado(`El elemento ${valBuscar} se encuentra en la posición (índice) ${pos} del arreglo.`);
       } else {
         setResultado(`El elemento ${valBuscar} no se encuentra en el arreglo.`);
       }
-    } catch {
-      setError('Error al comunicar con el backend. Verifica que Spring Boot esté activo.');
+    } catch (err: any) {
+      setError(err.message || 'Error al comunicar con el backend. Verifica que Spring Boot esté activo.');
     } finally {
       setCargando(false);
     }
   };
+
 
   return (
     <div className="min-h-screen bg-[#0a0d18] text-white flex flex-col justify-between p-8 font-sans">
@@ -132,9 +183,17 @@ export const BinarySearchPanel: React.FC<BinarySearchPanelProps> = ({ onBack }) 
                   value={tamano}
                   onChange={(e) => setTamano(e.target.value)}
                   placeholder="Ej. 6"
-                  className="w-full sm:w-80 bg-[#0a0d18] border border-cyan-500/30 rounded-xl px-4 py-3 text-lg text-white focus:outline-none focus:border-cyan-400 transition-colors"
+                  className="w-full sm:w-64 bg-[#0a0d18] border border-cyan-500/30 rounded-xl px-4 py-3 text-lg text-white focus:outline-none focus:border-cyan-400 transition-colors"
                 />
+                <button
+                  onClick={handleGuardarTamano}
+                  className="p-3 bg-cyan-500/20 text-cyan-400 hover:bg-cyan-500 hover:text-white rounded-xl transition-colors shrink-0"
+                  title="Guardar Tamaño"
+                >
+                  <Save className="w-6 h-6" />
+                </button>
               </div>
+
             </div>
 
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">

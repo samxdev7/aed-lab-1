@@ -39,3 +39,17 @@ export const ejecutarBusqueda = async (datos: BusquedaDTO) => {
   }
   return await response.json();
 };
+
+export const guardarTamano = async (tamano: number) => {
+  const response = await fetch(`${BASE_URL}/tamano`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ tamano })
+  });
+  if (!response.ok) {
+    if (response.status === 404) throw new Error('404: Servicio no encontrado');
+    if (response.status === 500) throw new Error('500: Error interno del servidor');
+    throw new Error(`Error HTTP: ${response.status}`);
+  }
+  return await response.json();
+};
