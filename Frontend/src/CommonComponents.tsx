@@ -3,6 +3,7 @@ import { ArrowLeft, Check } from 'lucide-react';
 
 export type ColorScheme = 'cyan' | 'purple' | 'red';
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const getColorStyles = (colorScheme: ColorScheme = 'cyan') => {
   switch (colorScheme) {
     case 'purple':

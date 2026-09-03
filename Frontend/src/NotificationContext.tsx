@@ -18,6 +18,7 @@ interface NotificationContextProps {
 
 const NotificationContext = createContext<NotificationContextProps | undefined>(undefined);
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const useNotification = () => {
   const context = useContext(NotificationContext);
   if (!context) {
@@ -57,10 +58,10 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
 const Toast: React.FC<{ notification: Notification; onClose: () => void }> = ({ notification, onClose }) => {
   const { type, title, message } = notification;
 
-  let bgClass = '';
-  let borderClass = '';
-  let textClass = '';
-  let Icon = Info;
+  let bgClass: string;
+  let borderClass: string;
+  let textClass: string;
+  let Icon: React.ComponentType<{ className?: string }>;
 
   switch (type) {
     case 'success':
